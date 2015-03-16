@@ -25,11 +25,11 @@ class Triangle:
 		elif x >= self._a and x <= self._b:
 			if self._a == self._b:
 				return 1
-			return round((float)(x - self._a) / (self._b - self._a), num_digits_precision)
+			return round((x - self._a) / float(self._b - self._a), num_digits_precision)
 		elif x >= self._b and x <= self._c:
 			if self._b == self._c:
 				return 1
-			return round((float)(self._c - x) / (self._c - self._b), num_digits_precision)
+			return round((self._c - x) / float(self._c - self._b), num_digits_precision)
 		elif x > self._c:
 			return 0
 

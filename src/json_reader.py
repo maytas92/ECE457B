@@ -4,6 +4,8 @@ import re
 from nltk import pos_tag, word_tokenize
 from collections import OrderedDict
 
+_DEBUG = 0
+
 # Class that provides basic functionality
 # to open, close, read and iterate
 # through json files [1 input, 1 output].
@@ -132,26 +134,27 @@ class ReviewJsonReader(JsonReader):
 
 # TODO: Satyam - Should not hardcode the inputs here
 # Gather from command line
-NUM_RECORDS = 100
-review_json_reader = ReviewJsonReader(
-                 './data/yelp_academic_dataset_review.json',
-                 './output/yelp_review_output.json')
+if _DEBUG:
+  NUM_RECORDS = 100
+  review_json_reader = ReviewJsonReader(
+                   './data/yelp_academic_dataset_review.json',
+                   './output/yelp_review_output.json')
 
-################ Tests #################
-review_json_reader.open_input_file()
-review_json_reader.read_input_file()
+  ################ Tests #################
+  review_json_reader.open_input_file()
+  review_json_reader.read_input_file()
 
-# Should return the first ten json records
-for i in range(NUM_RECORDS):
-  review_json_reader.process_record()
+  # Should return the first ten json records
+  for i in range(NUM_RECORDS):
+    review_json_reader.process_record()
 
-review_json_reader.close_input_file()
+  review_json_reader.close_input_file()
 
-##### DONE WITH INPUT FILE ######
+  ##### DONE WITH INPUT FILE ######
 
-###### START OUTPUT FILE ########
-review_json_reader.open_output_file()
-review_json_reader.write_to_output_file()
-review_json_reader.close_output_file()
+  ###### START OUTPUT FILE ########
+  review_json_reader.open_output_file()
+  review_json_reader.write_to_output_file()
+  review_json_reader.close_output_file()
 
 ########################################
