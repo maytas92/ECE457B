@@ -18,18 +18,18 @@ class JsonReader:
     self.outputFile = outputFile
 
   # First must open the inputFile
-  def openInputFile(self):
+  def open_input_file(self):
     self.i_file_object = open(self.inputFile, 'r')
 
-  def openOutputFile(self):
+  def open_output_file(self):
     self.o_file_object = open(self.outputFile, 'w+')
 
   # Finally close the inputFile after done 
   # reading/processing.
-  def closeInputFile(self):
+  def close_input_file(self):
     self.i_file_object.close()
    
-  def closeOutputFile(self):
+  def close_output_file(self):
     self.o_file_object.close()
 
   # Returns generator objects 
@@ -37,7 +37,7 @@ class JsonReader:
   # This is useful for large files because it prevents
   # loading the entire json file
   # into memory at once.
-  def readInputFile(self):
+  def read_input_file(self):
     for line in self.i_file_object:
       yield json.loads(line)
 
@@ -45,12 +45,12 @@ class JsonReader:
   # from the json file being read.
   # Ensure that the object calls readInputFile()
   # first.
-  def iterateInputFile(self, numLines=1):
+  def iterate_input_file(self, numLines=1):
     if numLines < 1:
       return
 
     counter = 0
-    for line in self.readInputFile():
+    for line in self.read_input_file():
       if counter < numLines:
         return line
       else:
@@ -68,61 +68,61 @@ class ReviewJsonReader(JsonReader):
   POSTAGS_REGEX = ['JJ.*', 'RB.*', 'VB.*', 'NN.*']
   POSTAGS = ['JJ', 'RB', 'VB', 'NN']
 
-  def __init__(self, inputFile, outputFile):
-    self.inputFile = inputFile
-    self.outputFile = outputFile
-    self.posTagReviewOutput = []
-    self.reviewStarRating = []
-    JsonReader.__init__(self, inputFile, outputFile)
+  def __init__(self, input_file, output_file):
+    self.input_file = input_file
+    self.output_file = output_file
+    self.pos_tag_review_output = []
+    self.review_star_rating = []
+    JsonReader.__init__(self, input_file, output_file)
 
-  def processRecord(self, numRecords=1):
-    record = JsonReader.iterateInputFile(self, numRecords)
+  def process_record(self, num_records=1):
+    record = JsonReader.iterate_input_file(self, num_records)
 
-    reviewBusinessId = record['business_id']
-    reviewText = record['text']
-    reviewStars = record['stars']
+    review_business_id = record['business_id']
+    review_text = record['text']
+    review_stars = record['stars']
 
     # NLTK Tokenization and Tagging
-    tokenizedReviewText = word_tokenize(reviewText)
-    posTagReview = pos_tag(tokenizedReviewText)
+    tokenized_review_text = word_tokenize(review_text)
+    pos_tag_review = pos_tag(tokenized_review_text)
 
     # {"somePOSTag" ->  ['someWord1', 'someWord2' ..], 
     #  "somePOSTag2" -> ['someOtherWord2, 'someOtherWord2']
     #   ..
     #  "somePOSTagn" -> [ .. ]"}
     # Ensure that keys are ordered based on POSTAGS
-    posTagReviewMap = OrderedDict()
+    pos_tag_review_map = OrderedDict()
 
     for pt in self.POSTAGS:
-      posTagReviewMap[pt] = []
+      pos_tag_review_map[pt] = []
     
     # posTagReview is a list
     # Each list item is a tuple of two items
     # (u'someWord', 'somePOSTag')
-    for item in posTagReview:
+    for item in pos_tag_review:
       token = item[0]
       posTag = item[1]
       for idx, ele in enumerate(self.POSTAGS_REGEX):
         if re.match(ele, posTag):
-          posTagReviewMap[self.POSTAGS[idx]].append(token)
+          pos_tag_review_map[self.POSTAGS[idx]].append(token)
           break
 
     # Adding necessary attributes to the output arrays
     # These are written back to the output file
-    self.posTagReviewOutput.append(posTagReviewMap)
-    self.reviewStarRating.append(reviewStars)
+    self.pos_tag_review_output.append(pos_tag_review_map)
+    self.review_star_rating.append(review_stars)
 
-    print posTagReviewMap
+    #print pos_tag_review_map
 
-  def writeToOutputFile(self):
+  def write_to_output_file(self):
     # The object written is a nested array
     # Each element of the nested array comprises of two 
     # elements. The first is an 'Ordered Dict' with 
     # four keys 'JJ', 'RB', 'VB' and 'NN'.
     # The second element is the review star rating.
     self.o_file_object.write(json.dumps(
-                            zip(self.posTagReviewOutput,
-                                self.reviewStarRating)
+                            zip(self.pos_tag_review_output,
+                                self.review_star_rating)
                             ))
 
 # Perhaps, use a similar pattern for other files 
@@ -132,25 +132,26 @@ class ReviewJsonReader(JsonReader):
 
 # TODO: Satyam - Should not hardcode the inputs here
 # Gather from command line
-NUM_RECORDS = 10
-reviewJsonReader = ReviewJsonReader(
+NUM_RECORDS = 100
+review_json_reader = ReviewJsonReader(
                  './data/yelp_academic_dataset_review.json',
                  './output/yelp_review_output.json')
 
 ################ Tests #################
-reviewJsonReader.openInputFile()
-reviewJsonReader.readInputFile()
+review_json_reader.open_input_file()
+review_json_reader.read_input_file()
 
 # Should return the first ten json records
 for i in range(NUM_RECORDS):
-  reviewJsonReader.processRecord()
+  review_json_reader.process_record()
 
-reviewJsonReader.closeInputFile()
+review_json_reader.close_input_file()
 
 ##### DONE WITH INPUT FILE ######
 
 ###### START OUTPUT FILE ########
-reviewJsonReader.openOutputFile()
-reviewJsonReader.writeToOutputFile()
+review_json_reader.open_output_file()
+review_json_reader.write_to_output_file()
+review_json_reader.close_output_file()
 
 ########################################
