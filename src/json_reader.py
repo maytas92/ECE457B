@@ -11,7 +11,7 @@ _DEBUG = 0
 # through json files [1 input, 1 output].
 # For e.g. the user.json file may be opened,
 # read and then written to an output file.
-# This output file may contain any useful 
+# This output file may contain any useful
 # processed output for later stages of the ANN.
 class JsonReader:
 
@@ -26,15 +26,15 @@ class JsonReader:
   def open_output_file(self):
     self.o_file_object = open(self.outputFile, 'w+')
 
-  # Finally close the inputFile after done 
+  # Finally close the inputFile after done
   # reading/processing.
   def close_input_file(self):
     self.i_file_object.close()
-   
+
   def close_output_file(self):
     self.o_file_object.close()
 
-  # Returns generator objects 
+  # Returns generator objects
   # Ensure that the object calls openInputFile()
   # This is useful for large files because it prevents
   # loading the entire json file
@@ -58,12 +58,12 @@ class JsonReader:
       else:
         break
       counter += 1
- 
-# Review Json Reader inherits the 
+
+# Review Json Reader inherits the
 # functionality of a Json Reader
-# but may add additional methods 
-# for custom processing of a review 
-# json object        
+# but may add additional methods
+# for custom processing of a review
+# json object
 class ReviewJsonReader(JsonReader):
 
   # Adjectives, Adverbs, verbs, Nouns
@@ -88,7 +88,7 @@ class ReviewJsonReader(JsonReader):
     tokenized_review_text = word_tokenize(review_text)
     pos_tag_review = pos_tag(tokenized_review_text)
 
-    # {"somePOSTag" ->  ['someWord1', 'someWord2' ..], 
+    # {"somePOSTag" ->  ['someWord1', 'someWord2' ..],
     #  "somePOSTag2" -> ['someOtherWord2, 'someOtherWord2']
     #   ..
     #  "somePOSTagn" -> [ .. ]"}
@@ -97,7 +97,7 @@ class ReviewJsonReader(JsonReader):
 
     for pt in self.POSTAGS:
       pos_tag_review_map[pt] = []
-    
+
     # posTagReview is a list
     # Each list item is a tuple of two items
     # (u'someWord', 'somePOSTag')
@@ -118,8 +118,8 @@ class ReviewJsonReader(JsonReader):
 
   def write_to_output_file(self):
     # The object written is a nested array
-    # Each element of the nested array comprises of two 
-    # elements. The first is an 'Ordered Dict' with 
+    # Each element of the nested array comprises of two
+    # elements. The first is an 'Ordered Dict' with
     # four keys 'JJ', 'RB', 'VB' and 'NN'.
     # The second element is the review star rating.
     self.o_file_object.write(json.dumps(
@@ -127,18 +127,18 @@ class ReviewJsonReader(JsonReader):
                                 self.review_star_rating)
                             ))
 
-# Perhaps, use a similar pattern for other files 
+# Perhaps, use a similar pattern for other files
 # class UserJsonReader(JsonReader):
 #
 
 
 # TODO: Satyam - Should not hardcode the inputs here
 # Gather from command line
-if _DEBUG:
+if __name__ == '__main__':
   NUM_RECORDS = 100
   review_json_reader = ReviewJsonReader(
-                   './data/yelp_academic_dataset_review.json',
-                   './output/yelp_review_output.json')
+                   '../data/yelp_academic_dataset_review.json',
+                   '../output/yelp_review_output.json')
 
   ################ Tests #################
   review_json_reader.open_input_file()
