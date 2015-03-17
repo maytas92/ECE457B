@@ -25,8 +25,8 @@ class ValenceData:
 			[word, valence_score] = line.split('\t')
 			self._data_map[word] = valence_score
 
-if _DEBUG:
-	valence_data = ValenceData('./data/valence.txt')
+if __name__ == '__main__':
+	valence_data = ValenceData('../data/valence.txt')
 	valence_data.process_data()
 
 	for k, v in valence_data._data_map.items():
