@@ -34,7 +34,7 @@ class Triangle:
 			return 0
 
 	def __call__(self, *args, **kwargs):
-	    return self_get_membership(*args, **kwargs)
+	    return self._get_membership(*args, **kwargs)
 
 
 def main():
