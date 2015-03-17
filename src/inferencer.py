@@ -75,7 +75,6 @@ class Inferencer(object):
         # consequence with the highest value at 'x'.
         return lambda x: max(map(lambda c: c(x), consequences))
 
-
 def main():
     f1 = lambda word: 0.8
     f2 = lambda word: 0.1

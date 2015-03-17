@@ -16,10 +16,10 @@ class Triangle:
 		self._b = b
 		self._c = c
 
-	# Returns the membership of an element 'x' 
+	# Returns the membership of an element 'x'
 	# based on the triangular membership function
-	# parameter 'a', 'b' and 'c'. 
-	def get_membership(self, x, num_digits_precision=4):
+	# parameter 'a', 'b' and 'c'.
+	def _get_membership(self, x, num_digits_precision=4):
 		if x < self._a:
 			return 0
 		elif x >= self._a and x <= self._b:
@@ -32,6 +32,10 @@ class Triangle:
 			return round((self._c - x) / float(self._c - self._b), num_digits_precision)
 		elif x > self._c:
 			return 0
+
+	def __call__(self, *args, **kwargs):
+	    return self._get_membership(*args, **kwargs)
+
 
 def main():
 	# A typical triangular membership function
@@ -48,15 +52,15 @@ def main():
 
 	print "Testing a normal triangular membership function"
 	for i in range(-1, 8):
-		print "x=", i, " membership=", t1.get_membership(i, 2)
+		print "x=", i, " membership=", t1(i, 2)
 
 	print "Testing the left clipped triangular membership function"
 	for i in range(-1, 7):
-		print "x=", i, " membership=", t2.get_membership(i)
+		print "x=", i, " membership=", t2(i)
 
 	print "Testing the right clipped triangular membership function"
 	for i in range(2, 8):
-		print "x=", i, " membership=", t3.get_membership(i)
+		print "x=", i, " membership=", t3(i)
 
 if __name__ == '__main__':
 	main()
