@@ -1,8 +1,9 @@
 import json_reader
 import valence_data
-import input_membership_functions
+import general_membership_functions
 import json
 from collections import OrderedDict
+import inferencer
 
 # constant that denotes that
 # a word is not found in the
@@ -12,7 +13,7 @@ DOES_NOT_EXIST = 10
 # a constant that denotes that
 # a 'pos' tag did not have
 # a word with a 'max' valence
-INIT_MAX_VALENCE = -10
+INIT_MAX_VALENCE = 0
 
 # This class acts as a wrapper around the
 # ReviewJsonReader and the ValenceData
@@ -27,7 +28,8 @@ class ReviewValence:
 		self.review_json.read_input_file()
 		self.valence_data = valence_data.ValenceData('./data/valence.txt')
 		self.valence_data.process_data()
-		self.input_mem_functions = input_membership_functions.InputMembershipFunctions()
+		self.input_mem_functions = general_membership_functions.InputMembershipFunctions()
+		self.output_mem_functions = general_membership_functions.OutputMembershipFunctions()
 		self.unique_non_valence_words = {}
 		self.output_non_valence = open('./data/output_non_valence.txt', 'w+')
 		# An array of review elements. Each review element contains
@@ -36,6 +38,15 @@ class ReviewValence:
 		# The 'max' valence is simply the maximum of the valences of
 		# the words for each 'POS tag'. 
 		self.output_pos_max_valence = []
+
+		self.init_rules()
+
+		self.input_dict_inferencer = {}
+
+	def init_rules(self):
+		self._rule1 = inferencer.Rule('IF verb is f1 AND adjective is f2 THEN orientation is f3')
+		self._rule2 = inferencer.Rule('IF verb is f4 AND adjective is f5 THEN orientation is f6')
+		self.review_inferencer = inferencer.Inferencer(self._rule1, self._rule2)
 
 	# Iterates through the first 'num_reviews'
 	# For each review it looks up the valence
@@ -58,19 +69,26 @@ class ReviewValence:
 			for pos_tag, words in review_output.items():
 				# Check if word exists in the valence data
 				max_valence = INIT_MAX_VALENCE
+
 				for word in words:
 					review_words_count += 1
 					valence_score = self.get_valence_score(word)
 					if valence_score != DOES_NOT_EXIST:
-						if valence_score > max_valence:
-							pos_tag_max_valence[pos_tag] = valence_score
+						# To ensure that if words have a 
+						# valence of -3, and +2: then -3 
+						# would be preferred.
+						abs_valence_score = abs(int(valence_score))
+						print abs_valence_score
+						if abs_valence_score > max_valence:
+							max_valence = abs_valence_score
+							pos_tag_max_valence[pos_tag] = (int(valence_score), word)
+							print pos_tag_max_valence
 						word_with_valence_count += 1
 					else:
 						if word not in self.unique_non_valence_words:
 							self.unique_non_valence_words[word] = 1
 						else:
 							self.unique_non_valence_words[word] += 1
-						#input_mem_functions
 			print "Percent of words found in valence dataset ", word_with_valence_count / float(review_words_count)	* 100
 
 			# Append the max_valence map data to the output array
@@ -86,8 +104,13 @@ class ReviewValence:
 		print "Inferencing"
 		# Iterate through the max_valence data and get inferencing!
 		for review in self.output_pos_max_valence:
-			for pos_tag, max_valence in review.items():
-				print "pos_tag=", pos_tag, " max_valence=", max_valence
+			for pos_tag, tup in review.items():
+				self.map_inputs_membership_function(pos_tag, tup[0], tup[1])
+				self.map_outputs_membership_function()
+			output = self.review_inferencer.infer(**(self.input_dict_inferencer))
+
+			print output(5)
+				#print "pos_tag=", pos_tag, " max_valence=", max_valence
 
 	# Valence scores from the data source lie between
 	# [-5, 5]. It returns the score based on the 
@@ -97,6 +120,32 @@ class ReviewValence:
 			return self.valence_data._data_map[word]
 		return DOES_NOT_EXIST
 
+	# Must be called per review
+	# Will set up the dict object such that it can be 
+	# used for inferencing
+	def map_inputs_membership_function(self, pos_tag, valence, word):
+		valence_lambda = lambda word : self.input_mem_functions.get_low_positive_membership(valence)
+		if pos_tag == 'JJ':
+			print "Adj"
+			self.input_dict_inferencer['adjective'] = word
+			self._rule1.and_('adjective', valence_lambda)
+			self._rule2.and_('adjective', valence_lambda)
+		elif pos_tag == 'VB':
+			print "Verb"
+			self.input_dict_inferencer['verb'] = word
+			self._rule1.if_('verb', valence_lambda)
+			self._rule2.if_('verb', valence_lambda)
+		elif pos_tag == 'NN':
+			self.input_dict_inferencer['noun'] = word
+		elif pos_tag == 'RB':
+			self.input_dict_inferencer['adverb'] = word 
+
+	def map_outputs_membership_function(self):
+		#output_lambda = lambda word : self.output_mem_functions.get_low_rating(2)
+		output_lambda = lambda x : x
+		self._rule1.then('orientation', output_lambda)
+		self._rule2.then('orientation', output_lambda)
+
 ############### MAIN ###############
 rv = ReviewValence()
-rv.process_reviews(int(1e2))
+rv.process_reviews(int(1e1))
