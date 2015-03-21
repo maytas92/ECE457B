@@ -138,41 +138,41 @@ class ReviewValence:
         # function may be made less fuzzy?
         # Verbs and adverbs
         self._rule24 = inferencer.Rule('IF verb is low_positive AND adverb is low_positive THEN orientation is f2')
-        self._rule24.if_('verb', low_positive).if_('adverb', low_positive).then('orientation', f2)
+        self._rule24.if_('verb', low_positive).and_('adverb', low_positive).then('orientation', f2)
 
         self._rule25 = inferencer.Rule('IF verb is med_positive AND adverb is low_positive THEN orientation is f2')
-        self._rule25.if_('verb', med_positive).if_('adverb', low_positive).then('orientation', f2)
+        self._rule25.if_('verb', med_positive).and_('adverb', low_positive).then('orientation', f2)
 
         self._rule26 = inferencer.Rule('IF verb is high_positive AND adverb is low_positive THEN orientation is f2')
-        self._rule26.if_('verb', high_positive).if_('adverb', low_positive).then('orientation', f2)
+        self._rule26.if_('verb', high_positive).and_('adverb', low_positive).then('orientation', f2)
 
         self._rule27 = inferencer.Rule('IF verb is low_negative AND adverb is low_positive THEN orientation is f2')
-        self._rule27.if_('verb', low_negative).if_('adverb', low_positive).then('orientation', f2)
+        self._rule27.if_('verb', low_negative).and_('adverb', low_positive).then('orientation', f2)
 
         self._rule28 = inferencer.Rule('IF verb is med_negative AND adverb is low_positive THEN orientation is f2')
-        self._rule28.if_('verb', med_negative).if_('adverb', low_positive).then('orientation', f2)
+        self._rule28.if_('verb', med_negative).and_('adverb', low_positive).then('orientation', f2)
 
         self._rule29 = inferencer.Rule('IF verb is high_negative AND adverb is low_positive THEN orientation is f2')
-        self._rule29.if_('verb', high_negative).if_('adverb', low_positive).then('orientation', f2)
+        self._rule29.if_('verb', high_negative).and_('adverb', low_positive).then('orientation', f2)
 
         # Nouns and adjectives
         self._rule30 = inferencer.Rule('IF noun is low_positive AND adjective is low_positive THEN orientation is f2')
-        self._rule30.if_('noun', low_positive).if_('adjective', low_positive).then('orientation', f2)
+        self._rule30.if_('noun', low_positive).and_('adjective', low_positive).then('orientation', f2)
 
         self._rule31 = inferencer.Rule('IF noun is med_positive AND adjective is med_positive THEN orientation is f2')
-        self._rule31.if_('noun', med_positive).if_('adjective', med_positive).then('orientation', f2)
+        self._rule31.if_('noun', med_positive).and_('adjective', med_positive).then('orientation', f2)
 
         self._rule32 = inferencer.Rule('IF noun is high_positive AND adjective is high_positive THEN orientation is f2')
-        self._rule32.if_('noun', high_positive).if_('adjective', high_positive).then('orientation', f2)
+        self._rule32.if_('noun', high_positive).and_('adjective', high_positive).then('orientation', f2)
 
         self._rule33 = inferencer.Rule('IF noun is low_negative AND adjective is low_negative THEN orientation is f2')
-        self._rule33.if_('noun', low_negative).if_('adjective', low_negative).then('orientation', f2)
+        self._rule33.if_('noun', low_negative).and_('adjective', low_negative).then('orientation', f2)
 
         self._rule34 = inferencer.Rule('IF noun is med_negative AND adjective is med_negative THEN orientation is f2')
-        self._rule34.if_('noun', med_negative).if_('adjective', med_negative).then('orientation', f2)
+        self._rule34.if_('noun', med_negative).and_('adjective', med_negative).then('orientation', f2)
 
         self._rule35 = inferencer.Rule('IF noun is high_negative AND adjective is high_negative THEN orientation is f2')
-        self._rule35.if_('noun', high_negative).if_('adjective', high_negative).then('orientation', f2)
+        self._rule35.if_('noun', high_negative).and_('adjective', high_negative).then('orientation', f2)
 
         self._rules = [ self._rule0,  self._rule1,  self._rule2,  self._rule3,  self._rule4,  self._rule5,
                         self._rule6,  self._rule7,  self._rule8,  self._rule9,  self._rule10, self._rule11,
