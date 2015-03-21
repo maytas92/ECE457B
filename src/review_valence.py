@@ -30,8 +30,8 @@ class ReviewValence:
         self.review_json.read_input_file()
         self.valence_data = valence_data.ValenceData('./data/valence.txt')
         self.valence_data.process_data()
-        self.input_mem_functions = general_membership_functions.InputMembershipFunctions()
-        self.output_mem_functions = general_membership_functions.OutputMembershipFunctions()
+        self.input_mem_functions = general_membership_functions.InputMembershipFunction()
+        self.output_mem_functions = general_membership_functions.OutputMembershipFunction()
         self.unique_non_valence_words = {}
         self.output_non_valence = open('./data/output_non_valence.txt', 'w+')
         # An array of review elements. Each review element contains
@@ -44,14 +44,15 @@ class ReviewValence:
 
         self._build_inference()
 
-    def _build_inference(self):
-        low_positive = self.input_mem_functions.get_low_positiveitive_membership
-        mod_positive = self.input_mem_functions.get_moderate_positive_membership
-        high_positive = self.input_mem_functions.get_high_positiveitive_membership
 
-        low_negative = self.input_mem_functions.get_low_negativeative_membership
-        mod_negative = self.input_mem_functions.get_moderate_negative_membership
-        high_negative = self.input_mem_functions.get_high_negativeative_membership
+    def _build_inference(self):
+        low_positive = self.input_mem_functions.get_low_positive_membership
+        med_positive = self.input_mem_functions.get_moderate_positive_membership
+        high_positive = self.input_mem_functions.get_high_positive_membership
+
+        low_negative = self.input_mem_functions.get_low_negative_membership
+        med_negative = self.input_mem_functions.get_moderate_negative_membership
+        high_negative = self.input_mem_functions.get_high_negative_membership
 
         f1 = lambda x: x
         f2 = lambda x: x
@@ -74,7 +75,6 @@ class ReviewValence:
 
         self._rule5 = inferencer.Rule('IF verb is high_negative THEN orientation is f1')
         self._rule5.if_('verb', high_negative).then('orientation', f1)
-
 
         # Only adjectives
         self._rule6 = inferencer.Rule('IF adjective is low_positive THEN orientation is f1')
@@ -242,9 +242,9 @@ class ReviewValence:
             inputs = dict()
             for pos_tag, tup in review.items():
                 valence, _ = tup
-                inputs[_postag_to_name(pos_tag)] = valence
+                inputs[self._postag_to_name(pos_tag)] = valence
             output = self.review_inferencer.infer(**inputs)
-            defuzzifier = Defuzzifier();
+            defuzzifier = Defuzzifier()
             outputvalue = defuzzifier(output, 0, 5.0, 1);
             print 'Defuzzified Value 2 is', outputvalue
 
