@@ -108,7 +108,8 @@ def main():
 
     # After this pass 'ouptput_membership_function' to the defuzzifier.
     # Call would look something this this:
-    #   outputvalue = defuzzifier(ouptput_membership_function, step_size=1e-1)
+    outputvalue = defuzzifier(output_membership_function, 0.0, 5.0, 1);
+    #outputvalue = defuzzifier(ouptput_membership_function, step_size=1e-1)
 
 if __name__ == '__main__':
     main()
