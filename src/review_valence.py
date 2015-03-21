@@ -1,9 +1,11 @@
+#!/usr/bin/python
 import json_reader
 import valence_data
 import general_membership_functions
 import json
 from collections import OrderedDict
 import inferencer
+from defuzzifier import Defuzzifier as Defuzzifier
 
 # constant that denotes that
 # a word is not found in the
@@ -194,8 +196,11 @@ class ReviewValence:
                 self.map_inputs_membership_function(pos_tag, tup[0], tup[1])
                 self.map_outputs_membership_function()
             output = self.review_inferencer.infer(**(self.input_dict_inferencer))
-            
-            print "Final output", output(5)
+            defuzzifier = Defuzzifier();
+            outputvalue = defuzzifier(output, 0, 5.0, 1);
+            print "Defuzzified Value 2 is ",outputvalue
+
+            #print "Final output", output(5)
             self.clear_rules()
 
     # Valence scores from the data source lie between
