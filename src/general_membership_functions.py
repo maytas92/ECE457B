@@ -1,6 +1,6 @@
 import membership_function
 
-class InputMembershipFunctions:
+class InputMembershipFunction:
 	# http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5561583
 	# Based on the Membership function design section
 	# The only difference is that here the range of values on the X axis
@@ -15,7 +15,7 @@ class InputMembershipFunctions:
 		self.moderate_positive = membership_function.Triangle(1.75, 2.75, 4)
 		self.high_positive = membership_function.Triangle(3, 5, 5)
 
-		self.low_negative = membership_function.Triangle(-2, -2, 0)
+		self.low_negative = membership_function.Triangle(-2, 0, 0)
 		self.moderate_negative = membership_function.Triangle(-4, -2.75, -1.5)
 		self.high_negative = membership_function.Triangle(-5, -5, -3)
 
@@ -37,7 +37,7 @@ class InputMembershipFunctions:
 	def get_high_negative_membership(self, x):
 		return self.high_negative.get_membership(x)
 
-class OutputMembershipFunctions:
+class OutputMembershipFunction:
 	def __init__(self):
 		self.low_rating = membership_function.Triangle(0, 0, 2)
 		self.moderate_rating = membership_function.Triangle(1.5, 2.75, 4)

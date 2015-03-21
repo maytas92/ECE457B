@@ -28,8 +28,8 @@ class ReviewValence:
         self.review_json.read_input_file()
         self.valence_data = valence_data.ValenceData('./data/valence.txt')
         self.valence_data.process_data()
-        self.input_mem_functions = general_membership_functions.InputMembershipFunctions()
-        self.output_mem_functions = general_membership_functions.OutputMembershipFunctions()
+        self.input_mem_functions = general_membership_functions.InputMembershipFunction()
+        self.output_mem_functions = general_membership_functions.OutputMembershipFunction()
         self.unique_non_valence_words = {}
         self.output_non_valence = open('./data/output_non_valence.txt', 'w+')
         # An array of review elements. Each review element contains
