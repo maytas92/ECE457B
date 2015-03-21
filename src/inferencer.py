@@ -41,6 +41,9 @@ class Rule(object):
         self._conditions = []
         self._consequence = None
 
+    def describe(self):
+        return self.rulename
+
 # Performs fuzzy inferencing. The constructor takes in undefined
 # number of 'Rule' objects. Example call:
 #   inferencer = Inferencer(rule1, rule2, rule3, ..., ruleN)
@@ -58,16 +61,16 @@ class Inferencer(object):
             if variable_name not in inputs:
                 raise Exception("Input not specified for variable '%s'" % (variable_name,))
             inputvalue = inputs[variable_name]
-            
+
             intersections.append(membership_function(inputvalue))
-        
+
         # Empty intersections is false
         if not intersections:
             return lambda x: 0
         # The firing strength is the minimum of all
         # the intersection points.
         firing_strength = min(intersections)
-        
+
 
         # The output membership function of this rulue is the firing
         # strength times the consequence membership function
@@ -78,7 +81,7 @@ class Inferencer(object):
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
-        
+
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
