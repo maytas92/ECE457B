@@ -83,6 +83,7 @@ class ReviewJsonReader(JsonReader):
     review_business_id = record['business_id']
     review_text = record['text']
     review_stars = record['stars']
+    review_date = record['date']
 
     # NLTK Tokenization and Tagging
     tokenized_review_text = word_tokenize(review_text)

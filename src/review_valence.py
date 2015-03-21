@@ -220,6 +220,7 @@ class ReviewValence:
 
         if pos_tag == 'JJ':
             self.input_dict_inferencer['adjective'] = word
+
             self._rule6.if_('adjective', valence_lp_lambda)
             self._rule7.if_('adjective', valence_mp_lambda)
             self._rule8.if_('adjective', valence_hp_lambda)
@@ -235,6 +236,7 @@ class ReviewValence:
             self._rule35.if_('adjective', valence_hn_lambda)
         elif pos_tag == 'VB':
             self.input_dict_inferencer['verb'] = word
+
             self._rule0.if_('verb', valence_lp_lambda)
             self._rule1.if_('verb', valence_mp_lambda)
             self._rule2.if_('verb', valence_hp_lambda)
@@ -291,29 +293,29 @@ class ReviewValence:
     def map_outputs_membership_function(self):
         #output_lambda = lambda word : self.output_mem_functions.get_low_rating(2)
         output_lambda = lambda x : x
-        #output_lambda_sqrt = lambda x : sqrt(x)
+        
         self._rule0.then('orientation', output_lambda)
         self._rule1.then('orientation', output_lambda)
         self._rule2.then('orientation', output_lambda)
         self._rule3.then('orientation', output_lambda)
         self._rule4.then('orientation', output_lambda)
         self._rule5.then('orientation', output_lambda)
+        
         self._rule6.then('orientation', output_lambda)
-
         self._rule7.then('orientation', output_lambda)
         self._rule8.then('orientation', output_lambda)
         self._rule9.then('orientation', output_lambda)
         self._rule10.then('orientation', output_lambda)
         self._rule11.then('orientation', output_lambda)
-        self._rule12.then('orientation', output_lambda)
 
+        self._rule12.then('orientation', output_lambda)
         self._rule13.then('orientation', output_lambda)
         self._rule14.then('orientation', output_lambda)
         self._rule15.then('orientation', output_lambda)
         self._rule16.then('orientation', output_lambda)
         self._rule17.then('orientation', output_lambda)
-        self._rule18.then('orientation', output_lambda)
 
+        self._rule18.then('orientation', output_lambda)
         self._rule19.then('orientation', output_lambda)
         self._rule20.then('orientation', output_lambda)
         self._rule21.then('orientation', output_lambda)
