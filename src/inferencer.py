@@ -1,4 +1,4 @@
-
+_DEBUG = 0
 # Object for building rules. Example call:
 #   rule = Rule(<optional english expression of the rule>)
 #   rule.if_('verb', f1).and_('adjective', f2).then('adverb', f3)
@@ -42,7 +42,7 @@ class Rule(object):
         self._consequence = None
 
     def describe(self):
-        return self.rulename
+        return self._rulename
 
 # Performs fuzzy inferencing. The constructor takes in undefined
 # number of 'Rule' objects. Example call:
@@ -59,7 +59,10 @@ class Inferencer(object):
         for (variable_name, membership_function) in rule.get_conditions():
             #print variable_name, membership_function
             if variable_name not in inputs:
-                raise Exception("Input not specified for variable '%s'" % (variable_name,))
+                if _DEBUG:
+                    print 'Ignoring rule "', rule.describe(), '" due to insufficient parameters'
+                continue
+                #raise Exception("Input not specified for variable '%s'" % (variable_name,))
             inputvalue = inputs[variable_name]
 
             intersections.append(membership_function(inputvalue))
@@ -81,7 +84,7 @@ class Inferencer(object):
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
-
+        print inputs
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
