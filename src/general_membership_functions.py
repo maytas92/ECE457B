@@ -12,7 +12,7 @@ class InputMembershipFunctions:
 	def __init__(self):
 		# Set up membership functions to allow for overlap
 		self.low_positive = membership_function.Triangle(0, 0, 2)
-		self.moderate_positive = membership_function.Triangle(1.5, 2.75, 4)
+		self.moderate_positive = membership_function.Triangle(1.75, 2.75, 4)
 		self.high_positive = membership_function.Triangle(3, 5, 5)
 
 		self.low_negative = membership_function.Triangle(-2, -2, 0)
@@ -21,6 +21,21 @@ class InputMembershipFunctions:
 
 	def get_low_positive_membership(self, x):
 		return self.low_positive.get_membership(x)
+
+	def get_moderate_positive_membership(self, x):
+		return self.moderate_positive.get_membership(x)
+
+	def get_high_positive_membership(self, x):
+		return self.high_positive.get_membership(x)
+
+	def get_low_negative_membership(self, x):
+		return self.low_negative.get_membership(x)
+
+	def get_moderate_negative_membership(self, x):
+		return self.moderate_negative.get_membership(x)
+
+	def get_high_negative_membership(self, x):
+		return self.high_negative.get_membership(x)
 
 class OutputMembershipFunctions:
 	def __init__(self):
