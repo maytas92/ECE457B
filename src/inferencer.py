@@ -77,14 +77,14 @@ class Inferencer(object):
 
         # The output membership function of this rulue is the firing
         # strength times the consequence membership function
-        return lambda x: firing_strength * rule.get_consequence()(x)
+        return lambda x: min(firing_strength, rule.get_consequence()(x))
 
     # Performs fuzzy inferencing based on some input values.
     # Rules must be defined over the values passed in.
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
-        print inputs
+        #print inputs
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
