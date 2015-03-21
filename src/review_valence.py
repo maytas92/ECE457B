@@ -28,8 +28,8 @@ class ReviewValence:
         self.review_json.read_input_file()
         self.valence_data = valence_data.ValenceData('./data/valence.txt')
         self.valence_data.process_data()
-        self.input_mem_functions = general_membership_functions.InputMembershipFunction()
-        self.output_mem_functions = general_membership_functions.OutputMembershipFunction()
+        self.input_mem_functions = general_membership_functions.InputMembershipFunctions()
+        self.output_mem_functions = general_membership_functions.OutputMembershipFunctions()
         self.unique_non_valence_words = {}
         self.output_non_valence = open('./data/output_non_valence.txt', 'w+')
         # An array of review elements. Each review element contains
@@ -238,13 +238,13 @@ class ReviewValence:
         print "Inferencing"
         # Iterate through the max_valence data and get inferencing!
         for review in self.output_pos_max_valence:
+            inputs = dict()
             for pos_tag, tup in review.items():
-                self.map_inputs_membership_function(pos_tag, tup[0], tup[1])
-                self.map_outputs_membership_function()
-            output = self.review_inferencer.infer(**(self.input_dict_inferencer))
+                valence, _ = tup
+                inputs[postag_to_name(pos_tag)] = valence
+            output = self.review_inferencer.infer(**inputs)
 
             print "Final output", output(5)
-            self.clear_rules()
 
     # Valence scores from the data source lie between
     # [-5, 5]. It returns the score based on the
@@ -258,130 +258,15 @@ class ReviewValence:
     # Must be called per review
     # Will set up the dict object such that it can be
     # used for inferencing
-    def map_inputs_membership_function(self, pos_tag, valence, word):
-
-        valence_lp_lambda = lambda word : self.input_mem_functions.get_low_positive_membership(valence)
-        valence_mp_lambda = lambda word : self.input_mem_functions.get_moderate_positive_membership(valence)
-        valence_hp_lambda = lambda word : self.input_mem_functions.get_high_positive_membership(valence)
-        valence_ln_lambda = lambda word : self.input_mem_functions.get_low_negative_membership(valence)
-        valence_mn_lambda = lambda word : self.input_mem_functions.get_moderate_negative_membership(valence)
-        valence_hn_lambda = lambda word : self.input_mem_functions.get_high_negative_membership(valence)
-
-        if pos_tag == 'JJ':
-            self.input_dict_inferencer['adjective'] = word
-            self._rule6.if_('adjective', valence_lp_lambda)
-            self._rule7.if_('adjective', valence_mp_lambda)
-            self._rule8.if_('adjective', valence_hp_lambda)
-            self._rule9.if_('adjective', valence_ln_lambda)
-            self._rule10.if_('adjective', valence_mn_lambda)
-            self._rule11.if_('adjective', valence_hn_lambda)
-
-            self._rule30.if_('adjective', valence_lp_lambda)
-            self._rule31.if_('adjective', valence_mp_lambda)
-            self._rule32.if_('adjective', valence_hp_lambda)
-            self._rule33.if_('adjective', valence_ln_lambda)
-            self._rule34.if_('adjective', valence_mn_lambda)
-            self._rule35.if_('adjective', valence_hn_lambda)
-        elif pos_tag == 'VB':
-            self.input_dict_inferencer['verb'] = word
-            self._rule0.if_('verb', valence_lp_lambda)
-            self._rule1.if_('verb', valence_mp_lambda)
-            self._rule2.if_('verb', valence_hp_lambda)
-            self._rule3.if_('verb', valence_ln_lambda)
-            self._rule4.if_('verb', valence_mn_lambda)
-            self._rule5.if_('verb', valence_hn_lambda)
-
-            self._rule7.if_('verb', valence_lp_lambda)
-            self._rule8.if_('verb', valence_mp_lambda)
-            self._rule9.if_('verb', valence_hp_lambda)
-            self._rule10.if_('verb', valence_ln_lambda)
-            self._rule11.if_('verb', valence_mn_lambda)
-            self._rule12.if_('verb', valence_hn_lambda)
-
-            self._rule24.if_('verb', valence_lp_lambda)
-            self._rule25.if_('verb', valence_mp_lambda)
-            self._rule26.if_('verb', valence_hp_lambda)
-            self._rule27.if_('verb', valence_ln_lambda)
-            self._rule28.if_('verb', valence_mn_lambda)
-            self._rule29.if_('verb', valence_hn_lambda)
-        elif pos_tag == 'NN':
-            self.input_dict_inferencer['noun'] = word
-
-            self._rule18.if_('noun', valence_lp_lambda)
-            self._rule19.if_('noun', valence_mp_lambda)
-            self._rule20.if_('noun', valence_hp_lambda)
-            self._rule21.if_('noun', valence_ln_lambda)
-            self._rule22.if_('noun', valence_mn_lambda)
-            self._rule23.if_('noun', valence_hn_lambda)
-
-            self._rule30.if_('noun', valence_lp_lambda)
-            self._rule31.if_('noun', valence_mp_lambda)
-            self._rule32.if_('noun', valence_hp_lambda)
-            self._rule33.if_('noun', valence_ln_lambda)
-            self._rule34.if_('noun', valence_mn_lambda)
-            self._rule35.if_('noun', valence_hn_lambda)
-        elif pos_tag == 'RB':
-            self.input_dict_inferencer['adverb'] = word
-
-            self._rule12.if_('adverb', valence_lp_lambda)
-            self._rule13.if_('adverb', valence_mp_lambda)
-            self._rule14.if_('adverb', valence_hp_lambda)
-            self._rule15.if_('adverb', valence_ln_lambda)
-            self._rule16.if_('adverb', valence_mn_lambda)
-            self._rule17.if_('adverb', valence_hn_lambda)
-
-            self._rule24.if_('adverb', valence_lp_lambda)
-            self._rule25.if_('adverb', valence_mp_lambda)
-            self._rule26.if_('adverb', valence_hp_lambda)
-            self._rule27.if_('adverb', valence_ln_lambda)
-            self._rule28.if_('adverb', valence_mn_lambda)
-            self._rule29.if_('adverb', valence_hn_lambda)
-
-    def map_outputs_membership_function(self):
-        #output_lambda = lambda word : self.output_mem_functions.get_low_rating(2)
-        output_lambda = lambda x : x
-        #output_lambda_sqrt = lambda x : sqrt(x)
-        self._rule0.then('orientation', output_lambda)
-        self._rule1.then('orientation', output_lambda)
-        self._rule2.then('orientation', output_lambda)
-        self._rule3.then('orientation', output_lambda)
-        self._rule4.then('orientation', output_lambda)
-        self._rule5.then('orientation', output_lambda)
-        self._rule6.then('orientation', output_lambda)
-
-        self._rule7.then('orientation', output_lambda)
-        self._rule8.then('orientation', output_lambda)
-        self._rule9.then('orientation', output_lambda)
-        self._rule10.then('orientation', output_lambda)
-        self._rule11.then('orientation', output_lambda)
-        self._rule12.then('orientation', output_lambda)
-
-        self._rule13.then('orientation', output_lambda)
-        self._rule14.then('orientation', output_lambda)
-        self._rule15.then('orientation', output_lambda)
-        self._rule16.then('orientation', output_lambda)
-        self._rule17.then('orientation', output_lambda)
-        self._rule18.then('orientation', output_lambda)
-
-        self._rule19.then('orientation', output_lambda)
-        self._rule20.then('orientation', output_lambda)
-        self._rule21.then('orientation', output_lambda)
-        self._rule22.then('orientation', output_lambda)
-        self._rule23.then('orientation', output_lambda)
-
-        self._rule24.then('orientation', output_lambda)
-        self._rule25.then('orientation', output_lambda)
-        self._rule26.then('orientation', output_lambda)
-        self._rule27.then('orientation', output_lambda)
-        self._rule28.then('orientation', output_lambda)
-        self._rule29.then('orientation', output_lambda)
-
-        self._rule30.then('orientation', output_lambda)
-        self._rule31.then('orientation', output_lambda)
-        self._rule32.then('orientation', output_lambda)
-        self._rule33.then('orientation', output_lambda)
-        self._rule34.then('orientation', output_lambda)
-        self._rule35.then('orientation', output_lambda)
+    def postag_to_name(self, postag):
+        if postag == 'JJ':
+            return 'adjective'
+        if postag == 'VB':
+            return 'verb'
+        if postag == 'NN':
+            return 'noun'
+        if postag == 'RB':
+            return 'adverb'
 
     def clear_rules(self):
         for rule in self._rules:
