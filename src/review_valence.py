@@ -47,13 +47,13 @@ class ReviewValence:
         self.input_dict_inferencer = {}
 
     def init_inferencer(self):
-        low_positiveitive = self.input_mem_functions.get_low_positiveitive_membership
+        low_positive = self.input_mem_functions.get_low_positiveitive_membership
         mod_positive = self.input_mem_functions.get_moderate_positive_membership
-        high_positiveitive = self.input_mem_functions.get_high_positiveitive_membership
+        high_positive = self.input_mem_functions.get_high_positiveitive_membership
 
-        low_negativeative = self.input_mem_functions.get_low_negativeative_membership
+        low_negative = self.input_mem_functions.get_low_negativeative_membership
         mod_negative = self.input_mem_functions.get_moderate_negative_membership
-        high_negativeative = self.input_mem_functions.get_high_negativeative_membership
+        high_negative = self.input_mem_functions.get_high_negativeative_membership
 
         f1 = lambda x: x
         f2 = lambda x: x
