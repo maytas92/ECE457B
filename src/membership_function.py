@@ -16,9 +16,12 @@ class Triangle:
         self._b = b
         self._c = c
 
-    # Returns the membership of an element 'x' 
+    def __call__(self *args, **kwargs):
+        return self.get_membership(*args, **kwargs)
+
+    # Returns the membership of an element 'x'
     # based on the triangular membership function
-    # parameter 'a', 'b' and 'c'. 
+    # parameter 'a', 'b' and 'c'.
     def get_membership(self, x, num_digits_precision=4):
         if x < self._a:
             return 0
@@ -65,6 +68,6 @@ def main():
     print "Testing the triangular membership function with negative input"
     for i in ranage(-3, 1):
         print "x=", i, " membership=", t4.get_membership(i)
-        
+
 if __name__ == '__main__':
     main()

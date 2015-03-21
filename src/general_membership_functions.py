@@ -7,7 +7,7 @@ class InputMembershipFunction:
     # belong to the interval [-5, 5]. Any value that is less than
     # 0 would be part of a 'negative' membership function and vice versa.
     # There are three degress of membership functions: 'low', 'moderate'
-    # and 'high'. The 'low' is a left clipped one, 'moderate' is a normal 
+    # and 'high'. The 'low' is a left clipped one, 'moderate' is a normal
     # triangular function and the 'high' is a right clipped one.
     def __init__(self):
         # Set up membership functions to allow for overlap
@@ -20,22 +20,22 @@ class InputMembershipFunction:
         self.high_negative = membership_function.Triangle(-5, -5, -3)
 
     def get_low_positive_membership(self, x):
-        return self.low_positive.get_membership(x)
+        return self.low_positive(x)
 
     def get_moderate_positive_membership(self, x):
-        return self.moderate_positive.get_membership(x)
+        return self.moderate_positive(x)
 
     def get_high_positive_membership(self, x):
-        return self.high_positive.get_membership(x)
+        return self.high_positive(x)
 
     def get_low_negative_membership(self, x):
-        return self.low_negative.get_membership(x)
+        return self.low_negative(x)
 
     def get_moderate_negative_membership(self, x):
-        return self.moderate_negative.get_membership(x)
+        return self.moderate_negative(x)
 
     def get_high_negative_membership(self, x):
-        return self.high_negative.get_membership(x)
+        return self.high_negative(x)
 
 class OutputMembershipFunction:
     def __init__(self):
@@ -44,7 +44,7 @@ class OutputMembershipFunction:
         self.high_rating = membership_function.Triangle(3, 5, 5)
 
     def get_low_rating(self, x):
-        return self.low_rating.get_membership(x)
+        return self.low_rating(x)
 
     def get_moderate_rating(self, x):
         return self.moderate_rating(x)
