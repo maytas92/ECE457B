@@ -56,6 +56,7 @@ class ReviewValence:
         high_negativeative = self.input_mem_functions.get_high_negativeative_membership
 
         f1 = lambda x: x
+        f2 = lambda x: x
 
         # Only verbs
         self._rule0 = inferencer.Rule('IF verb is low_positive THEN orientation is f1')
