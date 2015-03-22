@@ -34,7 +34,8 @@ class Rule(object):
 
     def get_consequence(self):
         if not self._consequence:
-            raise Exception("Consequence not specified for this rule '%s'" % (self._rulename,))
+            raise Exception("Consequence not specified for this rule '%s'" \
+                    % (self._rulename,))
         return self._consequence[1]
 
     def clear(self):
@@ -60,19 +61,17 @@ class Inferencer(object):
             #print variable_name, membership_function
             if variable_name not in inputs:
                 if _DEBUG:
-                    print 'Ignoring rule "', rule.describe(), '" due to insufficient parameters'
+                    print 'Ignoring rule "', rule.describe(), \
+                            '" due to insufficient parameters'
                 continue
-                #raise Exception("Input not specified for variable '%s'" % (variable_name,))
             inputvalue = inputs[variable_name]
 
             intersections.append(membership_function(inputvalue))
 
-        # Empty intersections is false
-        if not intersections:
-            return lambda x: 0
+
         # The firing strength is the minimum of all
-        # the intersection points.
-        firing_strength = min(intersections)
+        # the intersection points. 0 if there are no intersections
+        firing_strength = min(intersections) if intersections else 0
 
 
         # The output membership function of this rulue is the firing
@@ -84,7 +83,6 @@ class Inferencer(object):
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
-        #print inputs
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
