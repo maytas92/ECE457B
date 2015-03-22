@@ -25,16 +25,16 @@ INIT_MAX_VALENCE = 0
 class ReviewValence:
     def __init__(self):
         self.review_json = json_reader.ReviewJsonReader(
-                 './data/yelp_academic_dataset_review.json',
-                 './output/yelp_review_output.json')
+                 '../data/yelp_academic_dataset_review.json',
+                 '../output/yelp_review_output.json')
         self.review_json.open_input_file()
         self.review_json.read_input_file()
-        self.valence_data = valence_data.ValenceData('./data/valence.txt')
+        self.valence_data = valence_data.ValenceData('../data/valence.txt')
         self.valence_data.process_data()
         self.input_mem_functions = general_membership_functions.InputMembershipFunction()
         self.output_mem_functions = general_membership_functions.OutputMembershipFunction()
         self.unique_non_valence_words = {}
-        self.output_non_valence = open('./data/output_non_valence.txt', 'w+')
+        self.output_non_valence = open('../data/output_non_valence.txt', 'w+')
         # An array of review elements. Each review element contains
         # a map with a key for each 'POS tag' and its corresponding
         # value to be the 'max' valence.
@@ -46,20 +46,20 @@ class ReviewValence:
 
 
     def _build_inference(self):
-        low_positive = self.input_mem_functions.get_low_positive_membership
-        med_positive = self.input_mem_functions.get_moderate_positive_membership
+        low_positive  = self.input_mem_functions.get_low_positive_membership
+        med_positive  = self.input_mem_functions.get_moderate_positive_membership
         high_positive = self.input_mem_functions.get_high_positive_membership
 
-        low_negative = self.input_mem_functions.get_low_negative_membership
-        med_negative = self.input_mem_functions.get_moderate_negative_membership
+        low_negative  = self.input_mem_functions.get_low_negative_membership
+        med_negative  = self.input_mem_functions.get_moderate_negative_membership
         high_negative = self.input_mem_functions.get_high_negative_membership
 
-        low_otn = lambda x: self.output_mem_functions.get_low_rating(x)
-        very_low_otn = lambda x : self.output_mem_functions.get_very_low_rating(x)
-        moderate_otn = lambda x: self.output_mem_functions.get_moderate_rating(x)
-        very_moderate_otn = lambda x : self.output_mem_functions.get_very_moderate_rating(x)
-        high_otn = lambda x: self.output_mem_functions.get_high_rating(x)
-        very_high_otn = lambda x: self.output_mem_functions.get_very_high_rating(x)
+        low_otn  = self.output_mem_functions.get_low_rating
+        high_otn = self.output_mem_functions.get_high_rating
+        very_low_otn  = self.output_mem_functions.get_very_low_rating
+        moderate_otn  = self.output_mem_functions.get_moderate_rating
+        very_high_otn = self.output_mem_functions.get_very_high_rating
+        very_moderate_otn = self.output_mem_functions.get_very_moderate_rating
 
         # Only verbs
         self._rule0 = inferencer.Rule('IF verb is low_positive THEN orientation is moderate_otn')
