@@ -42,10 +42,10 @@ class ReviewValence:
         # the words for each 'POS tag'.
         self.output_pos_max_valence = []
 
-        self._build_inference()
+        self._build_inferencer()
 
 
-    def _build_inference(self):
+    def _build_inferencer(self):
         low_positive  = self.input_mem_functions.get_low_positive_membership
         med_positive  = self.input_mem_functions.get_moderate_positive_membership
         high_positive = self.input_mem_functions.get_high_positive_membership
