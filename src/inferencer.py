@@ -1,4 +1,4 @@
-_DEBUG = 0
+_DEBUG = 1
 # Object for building rules. Example call:
 #   rule = Rule(<optional english expression of the rule>)
 #   rule.if_('verb', f1).and_('adjective', f2).then('adverb', f3)
