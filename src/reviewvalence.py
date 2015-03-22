@@ -12,6 +12,9 @@ from math import exp
 from collections import OrderedDict, defaultdict
 from defuzzifier import Defuzzifier
 import abc
+import getopt, sys
+
+_DEBUG = 0
 
 # constant that denotes that
 # a word is not found in the
@@ -259,12 +262,11 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
                         word_with_valence_count += 1
                     else:
                         self.unique_non_valence_words[word] += 1
-            print 'Percent of words found in valence dataset', word_with_valence_count / float(review_words_count) * 100
+            #print 'Percent of words found in valence dataset', word_with_valence_count / float(review_words_count) * 100
 
             # Append the max_valence map data to the output array
             self.output_pos_max_valence.append(pos_tag_max_valence)
 
-        print 'Iterating through non-valence data'
         for word, count in self.unique_non_valence_words.items():
             try:
                 self.output_non_valence.write(word + '=' + str(count) + '\n')
@@ -283,7 +285,9 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
             defuzzifier = Defuzzifier()
             outputvalue = defuzzifier(output, 0.0, 5.0, 1e-1)
             self.defuzzied_review_ratings.append(round(outputvalue, 1))
-            print 'Defuzzified Value is', format(outputvalue, '.1f')
+
+            if _DEBUG:
+                print 'Defuzzified Value is', format(outputvalue, '.1f')
 
         StatAnalysis.get_review_rating_accuracy(self.review_json.review_star_rating, self.defuzzied_review_ratings)
     # Valence scores from the data source lie between
@@ -327,7 +331,7 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
                 cummulative_valence = sum(map(self._get_valence_score, words))
                 postage_name = self._postag_to_name(pos_tag)
                 pos_tag_average_valence[postage_name] = cummulative_valence / len(words)
-            print pos_tag_average_valence
+            #print pos_tag_average_valence
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
         print 'Inferencing'
@@ -337,7 +341,8 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             defuzzifier = Defuzzifier()
             outputvalue = defuzzifier(output, 0.0, 5.0, 1e-1);
             self.defuzzied_review_ratings.append(round(outputvalue, 1))
-            print 'Defuzzified Value is', format(outputvalue, '.1f')
+            if _DEBUG:
+                print 'Defuzzified Value is', format(outputvalue, '.1f')
 
         StatAnalysis.get_review_rating_accuracy(self.review_json.review_star_rating, self.defuzzied_review_ratings)
 
@@ -351,10 +356,25 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
 
 ############### MAIN ###############
 if __name__ == '__main__':
+    if len(sys.argv[1:]) < 1:
+        print 'reviewvalence.py -n <numreviews>'
+        sys.exit(2)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],"hn:",["numreviews="])
+    except getopt.GetoptError:
+        print 'reviewvalence.py -n <numreviews>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'reviewvalence.py -n <numreviews>'
+            sys.exit()
+        elif opt in ("-n", "--numreviews"):
+            numreviews = arg
+    print 'Number of Reviews ', numreviews
     print 'Max Valence method'
     max_pos_method = MaxPOSValenceMethod()
-    max_pos_method.process_reviews(int(50))
+    max_pos_method.process_reviews(int(numreviews))
 
-    print 'Average Valence'
+    print '\n\nAverage Valence'
     average_pos_method = AveragePOSValenceMethod()
-    average_pos_method.process_reviews(int(50))
+    average_pos_method.process_reviews(int(numreviews))
