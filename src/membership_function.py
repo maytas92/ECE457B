@@ -16,7 +16,7 @@ class Triangle:
         self._b = b
         self._c = c
 
-    def __call__(self *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         return self.get_membership(*args, **kwargs)
 
     # Returns the membership of an element 'x'
