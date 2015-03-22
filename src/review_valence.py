@@ -1,10 +1,11 @@
 #!/usr/bin/python
-import json_reader
-import valence_data
-import general_membership_functions
+from json_reader import ReviewJsonReader as ReviewJsonReader
+from valence_data import ValenceData as ValenceData
+from general_membership_functions import \
+    InputMembershipFunction, OutputMembershipFunction
 import json
 from collections import OrderedDict
-import inferencer
+from inferencer import Rule, Inferencer
 from defuzzifier import Defuzzifier as Defuzzifier
 from math import exp
 
@@ -24,15 +25,15 @@ INIT_MAX_VALENCE = 0
 # valence data set.
 class ReviewValence:
     def __init__(self):
-        self.review_json = json_reader.ReviewJsonReader(
+        self.review_json = ReviewJsonReader(
                  '../data/yelp_academic_dataset_review.json',
                  '../output/yelp_review_output.json')
         self.review_json.open_input_file()
         self.review_json.read_input_file()
-        self.valence_data = valence_data.ValenceData('../data/valence.txt')
+        self.valence_data = ValenceData('../data/valence.txt')
         self.valence_data.process_data()
-        self.input_mem_functions = general_membership_functions.InputMembershipFunction()
-        self.output_mem_functions = general_membership_functions.OutputMembershipFunction()
+        self.input_mem_functions = InputMembershipFunction()
+        self.output_mem_functions = OutputMembershipFunction()
         self.unique_non_valence_words = {}
         self.output_non_valence = open('../data/output_non_valence.txt', 'w+')
         # An array of review elements. Each review element contains
@@ -62,120 +63,120 @@ class ReviewValence:
         very_moderate_otn = self.output_mem_functions.get_very_moderate_rating
 
         # Only verbs
-        self._rule0 = inferencer.Rule('IF verb is low_positive THEN orientation is moderate_otn')
+        self._rule0 = Rule('IF verb is low_positive THEN orientation is moderate_otn')
         self._rule0.if_('verb', low_positive).then('orientation', moderate_otn)
 
-        self._rule1 = inferencer.Rule('IF verb is med_positive THEN orientation is very_moderate_otn')
+        self._rule1 = Rule('IF verb is med_positive THEN orientation is very_moderate_otn')
         self._rule1.if_('verb', med_positive).then('orientation', very_moderate_otn)
 
-        self._rule2 = inferencer.Rule('IF verb is high_positive THEN orientation is high_otn')
+        self._rule2 = Rule('IF verb is high_positive THEN orientation is high_otn')
         self._rule2.if_('verb', high_positive).then('orientation', high_otn)
 
-        self._rule3 = inferencer.Rule('IF verb is low_negative THEN orientation is moderate_otn')
+        self._rule3 = Rule('IF verb is low_negative THEN orientation is moderate_otn')
         self._rule3.if_('verb', low_negative).then('orientation', moderate_otn)
 
-        self._rule4 = inferencer.Rule('IF verb is med_negative THEN orientation is low_otn')
+        self._rule4 = Rule('IF verb is med_negative THEN orientation is low_otn')
         self._rule4.if_('verb', med_negative).then('orientation', low_otn)
 
-        self._rule5 = inferencer.Rule('IF verb is high_negative THEN orientation is very_low_otn')
+        self._rule5 = Rule('IF verb is high_negative THEN orientation is very_low_otn')
         self._rule5.if_('verb', high_negative).then('orientation', very_low_otn)
 
         # Only adjectives
-        self._rule6 = inferencer.Rule('IF adjective is low_positive THEN orientation is moderate_otn')
+        self._rule6 = Rule('IF adjective is low_positive THEN orientation is moderate_otn')
         self._rule6.if_('adjective', low_positive).then('orientation', moderate_otn)
 
-        self._rule7 = inferencer.Rule('IF adjective is med_positive THEN orientation is very_moderate_otn')
+        self._rule7 = Rule('IF adjective is med_positive THEN orientation is very_moderate_otn')
         self._rule7.if_('adjective', med_positive).then('orientation', very_moderate_otn)
 
-        self._rule8 = inferencer.Rule('IF adjective is high_positive THEN orientation is high_otn')
+        self._rule8 = Rule('IF adjective is high_positive THEN orientation is high_otn')
         self._rule8.if_('adjective', high_positive).then('orientation', high_otn)
 
-        self._rule9 = inferencer.Rule('IF adjective is low_negative THEN orientation is moderate_otn')
+        self._rule9 = Rule('IF adjective is low_negative THEN orientation is moderate_otn')
         self._rule9.if_('adjective', low_negative).then('orientation', moderate_otn)
 
-        self._rule10 = inferencer.Rule('IF adjective is med_negative THEN orientation is low_otn')
+        self._rule10 = Rule('IF adjective is med_negative THEN orientation is low_otn')
         self._rule10.if_('adjective', med_negative).then('orientation', low_otn)
 
-        self._rule11 = inferencer.Rule('IF adjective is high_negative THEN orientation is very_low_otn')
+        self._rule11 = Rule('IF adjective is high_negative THEN orientation is very_low_otn')
         self._rule11.if_('adjective', high_negative).then('orientation', very_low_otn)
 
         # Only adverbs
-        self._rule12 = inferencer.Rule('IF adverb is low_positive THEN orientation is moderate_otn')
+        self._rule12 = Rule('IF adverb is low_positive THEN orientation is moderate_otn')
         self._rule12.if_('adverb', low_positive).then('orientation', moderate_otn)
 
-        self._rule13 = inferencer.Rule('IF adverb is med_positive THEN orientation is very_moderate_otn')
+        self._rule13 = Rule('IF adverb is med_positive THEN orientation is very_moderate_otn')
         self._rule13.if_('adverb', med_positive).then('orientation', very_moderate_otn)
 
-        self._rule14 = inferencer.Rule('IF adverb is high_positive THEN orientation is high_otn')
+        self._rule14 = Rule('IF adverb is high_positive THEN orientation is high_otn')
         self._rule14.if_('adverb', high_positive).then('orientation', high_otn)
 
-        self._rule15 = inferencer.Rule('IF adverb is low_negative THEN orientation is moderate_otn')
+        self._rule15 = Rule('IF adverb is low_negative THEN orientation is moderate_otn')
         self._rule15.if_('adverb', low_negative).then('orientation', moderate_otn)
 
-        self._rule16 = inferencer.Rule('IF adverb is med_negative THEN orientation is low_otn')
+        self._rule16 = Rule('IF adverb is med_negative THEN orientation is low_otn')
         self._rule16.if_('adverb', med_negative).then('orientation', low_otn)
 
-        self._rule17 = inferencer.Rule('IF adverb is high_negative THEN orientation is very_low_otn')
+        self._rule17 = Rule('IF adverb is high_negative THEN orientation is very_low_otn')
         self._rule17.if_('adverb', high_negative).then('orientation', very_low_otn)
 
         # Only nouns
-        self._rule18 = inferencer.Rule('IF noun is low_positive THEN orientation is moderate_otn')
+        self._rule18 = Rule('IF noun is low_positive THEN orientation is moderate_otn')
         self._rule18.if_('noun', low_positive).then('orientation', moderate_otn)
 
-        self._rule19 = inferencer.Rule('IF noun is med_positive THEN orientation is very_moderate_otn')
+        self._rule19 = Rule('IF noun is med_positive THEN orientation is very_moderate_otn')
         self._rule19.if_('noun', med_positive).then('orientation', very_moderate_otn)
 
-        self._rule20 = inferencer.Rule('IF noun is high_positive THEN orientation is high_positive')
+        self._rule20 = Rule('IF noun is high_positive THEN orientation is high_positive')
         self._rule20.if_('noun', high_positive).then('orientation', high_otn)
 
-        self._rule21 = inferencer.Rule('IF noun is low_negative THEN orientation is moderate_otn')
+        self._rule21 = Rule('IF noun is low_negative THEN orientation is moderate_otn')
         self._rule21.if_('noun', low_negative).then('orientation', moderate_otn)
 
-        self._rule22 = inferencer.Rule('IF noun is med_negative THEN orientation is low_otn')
+        self._rule22 = Rule('IF noun is med_negative THEN orientation is low_otn')
         self._rule22.if_('noun', med_negative).then('orientation', low_otn)
 
-        self._rule23 = inferencer.Rule('IF noun is high_negative THEN orientation is very_low_otn')
+        self._rule23 = Rule('IF noun is high_negative THEN orientation is very_low_otn')
         self._rule23.if_('noun', high_negative).then('orientation', very_low_otn)
 
         # Here f2 may be a function such that f2 = sqrt(f1)
         # This is because two POS TAGs are being fired in conjunction -> so the consequent membership
         # function may be made less fuzzy?
         # Verbs and adverbs
-        self._rule24 = inferencer.Rule('IF verb is low_positive AND adverb is low_positive THEN orientation is moderate_otn')
+        self._rule24 = Rule('IF verb is low_positive AND adverb is low_positive THEN orientation is moderate_otn')
         self._rule24.if_('verb', low_positive).and_('adverb', low_positive).then('orientation', moderate_otn)
 
-        self._rule25 = inferencer.Rule('IF verb is med_positive AND adverb is med_positive THEN orientation is very_moderate_otn')
+        self._rule25 = Rule('IF verb is med_positive AND adverb is med_positive THEN orientation is very_moderate_otn')
         self._rule25.if_('verb', med_positive).and_('adverb', low_positive).then('orientation', very_moderate_otn)
 
-        self._rule26 = inferencer.Rule('IF verb is high_positive AND adverb is high_positive THEN orientation is very_high_otn')
+        self._rule26 = Rule('IF verb is high_positive AND adverb is high_positive THEN orientation is very_high_otn')
         self._rule26.if_('verb', high_positive).and_('adverb', low_positive).then('orientation', very_high_otn)
 
-        self._rule27 = inferencer.Rule('IF verb is low_negative AND adverb is low_negative THEN orientation is moderate_otn')
+        self._rule27 = Rule('IF verb is low_negative AND adverb is low_negative THEN orientation is moderate_otn')
         self._rule27.if_('verb', low_negative).and_('adverb', low_negative).then('orientation', moderate_otn)
 
-        self._rule28 = inferencer.Rule('IF verb is med_negative AND adverb is med_negative THEN orientation is low_otn')
+        self._rule28 = Rule('IF verb is med_negative AND adverb is med_negative THEN orientation is low_otn')
         self._rule28.if_('verb', med_negative).and_('adverb', med_negative).then('orientation', low_otn)
 
-        self._rule29 = inferencer.Rule('IF verb is high_negative AND adverb is high_negative THEN orientation is very_low_otn')
+        self._rule29 = Rule('IF verb is high_negative AND adverb is high_negative THEN orientation is very_low_otn')
         self._rule29.if_('verb', high_negative).and_('adverb', high_negative).then('orientation', very_low_otn)
 
         # Nouns and adjectives
-        self._rule30 = inferencer.Rule('IF noun is low_positive AND adjective is low_positive THEN orientation is moderate_otn')
+        self._rule30 = Rule('IF noun is low_positive AND adjective is low_positive THEN orientation is moderate_otn')
         self._rule30.if_('noun', low_positive).and_('adjective', low_positive).then('orientation', moderate_otn)
 
-        self._rule31 = inferencer.Rule('IF noun is med_positive AND adjective is med_positive THEN orientation is very_moderate_otn')
+        self._rule31 = Rule('IF noun is med_positive AND adjective is med_positive THEN orientation is very_moderate_otn')
         self._rule31.if_('noun', med_positive).and_('adjective', med_positive).then('orientation', very_moderate_otn)
 
-        self._rule32 = inferencer.Rule('IF noun is high_positive AND adjective is high_positive THEN orientation is very_high_otn')
+        self._rule32 = Rule('IF noun is high_positive AND adjective is high_positive THEN orientation is very_high_otn')
         self._rule32.if_('noun', high_positive).and_('adjective', high_positive).then('orientation', very_high_otn)
 
-        self._rule33 = inferencer.Rule('IF noun is low_negative AND adjective is low_negative THEN orientation is moderate_otn')
+        self._rule33 = Rule('IF noun is low_negative AND adjective is low_negative THEN orientation is moderate_otn')
         self._rule33.if_('noun', low_negative).and_('adjective', low_negative).then('orientation', moderate_otn)
 
-        self._rule34 = inferencer.Rule('IF noun is med_negative AND adjective is med_negative THEN orientation is low_otn')
+        self._rule34 = Rule('IF noun is med_negative AND adjective is med_negative THEN orientation is low_otn')
         self._rule34.if_('noun', med_negative).and_('adjective', med_negative).then('orientation', low_otn)
 
-        self._rule35 = inferencer.Rule('IF noun is high_negative AND adjective is high_negative THEN orientation is very_low_otn')
+        self._rule35 = Rule('IF noun is high_negative AND adjective is high_negative THEN orientation is very_low_otn')
         self._rule35.if_('noun', high_negative).and_('adjective', high_negative).then('orientation', very_low_otn)
 
         self._rules = [ self._rule0,  self._rule1,  self._rule2,  self._rule3,  self._rule4,  self._rule5,
@@ -185,7 +186,7 @@ class ReviewValence:
                         self._rule24, self._rule25, self._rule26, self._rule27, self._rule28, self._rule29,
                         self._rule30, self._rule31, self._rule32, self._rule33, self._rule34, self._rule35 ]
 
-        self.review_inferencer = inferencer.Inferencer(*self._rules)
+        self.review_inferencer = Inferencer(*self._rules)
 
     # Iterates through the first 'num_reviews'
     # For each review it looks up the valence
