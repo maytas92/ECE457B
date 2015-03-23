@@ -93,9 +93,53 @@ class JsonReader:
     return list_
 
 class DbReader:
-
+    # Adjectives, Adverbs, verbs, Nouns
+    POSTAGS_REGEX = ['JJ.*', 'RB.*', 'VB.*', 'NN.*']
+    POSTAGS = ['JJ', 'RB', 'VB', 'NN']
     def __init__(self):
-        pass
+        self.reviewList = []
+
+    def parseData(self,q, reviewList):
+        review_business_id = q.business_id
+        review_text = q.text
+        review_stars = q.stars
+        review_date = q.date
+        review_user = q.user_id
+        # NLTK Tokenization and Tagging
+        tokenized_review_text = word_tokenize(review_text)
+        pos_tag_review = pos_tag(tokenized_review_text)
+
+        # {"somePOSTag" ->  ['someWord1', 'someWord2' ..],
+        #  "somePOSTag2" -> ['someOtherWord2, 'someOtherWord2']
+        #   ..
+        #  "somePOSTagn" -> [ .. ]"}
+        # Ensure that keys are ordered based on POSTAGS
+        pos_tag_review_map = OrderedDict()
+        
+        for pt in self.POSTAGS:
+            pos_tag_review_map[pt] = []
+
+        # posTagReview is a list
+        # Each list item is a tuple of two items
+        # (u'someWord', 'somePOSTag')
+        for item in pos_tag_review:
+            token = item[0]
+            posTag = item[1]
+            for idx, ele in enumerate(self.POSTAGS_REGEX):
+                if re.match(ele, posTag):
+                    pos_tag_review_map[self.POSTAGS[idx]].append(token)
+                    break
+                        
+        # Adding necessary attributes to the output map
+        # These are written back to the output file
+        reviewList.append({ \
+                                 'business_id':review_business_id,
+                                 'user_id':review_user,
+                                 'stars':review_stars,
+                                 'date':review_date,
+                                 'tagged_text':pos_tag_review_map
+                                 })
+        
     def getBusinessReviews(self,business_id,num_reviews=1):
         business = Business.get(Business.business_id==business_id)
         reviewList = []
@@ -103,14 +147,14 @@ class DbReader:
             query = (Review
                           .select()
                           .where(Review.business_id==business)
-                          #.limit(num_reviews)
+                          .limit(num_reviews)
             )
             #reviewList = [q for q in query]
             for q in query:
-                reviewList.append(q)
+                self.parseData( q, reviewList )
         return reviewList
 
-    def getUserReviews(self,user_id,num_reviews):
+    def getUserReviews(self,user_id,num_reviews=1):
         user = User.get(User.user_id==user_id)
         reviewList = []
         with db.transaction():
@@ -120,7 +164,8 @@ class DbReader:
                           .limit(num_reviews))
             #reviewList = [q for q in query]
             for q in query:
-                reviewList.append(q)
+                self.parseData( q , reviewList )
+                
         return reviewList
         
 # Review Json Reader inherits the
@@ -277,15 +322,22 @@ def readDb():
     db_reader = DbReader()
     business_id = '-1bOb2izeJBZjHC7NWxiPA'
     businessReviews = db_reader.getBusinessReviews(business_id,NUM_RECORDS)
-    print "Business Reviews"
+    print "*********Business Reviews*************\n"
+    count = 0
     for review in businessReviews:
-        print review.business_id, review.user_id, review.stars, review.date, review.text 
+        count += 1
+        print "%d." % count, review['business_id'].business_id,review['business_id'].business_name , review['user_id'].user_id, review['user_id'].name , review['stars'], review['date']
+        print review['tagged_text'], "\n"
   
-    print "User Reviews"
+    print "********User Reviews**********\n"
+    count = 0
     for reviewb in businessReviews:
-        userReviews = db_reader.getUserReviews(reviewb.user_id,NUM_RECORDS)
-        for reviewu in userReviews:
-            print reviewu.business_id, reviewu.user_id, reviewu.stars, reviewu.date, reviewu.text 
+        userReviews = db_reader.getUserReviews(reviewb['user_id'],NUM_RECORDS)
+        for review in userReviews:
+            count += 1
+            print "%d." % count, review['business_id'].business_id,review['business_id'].business_name , review['user_id'].user_id, review['user_id'].name , review['stars'], review['date']
+            print review['tagged_text'], "\n"
+
 
 def storeBusinessJson(NUM_RECORDS):
     business_json_reader = BusinessJsonReader(
