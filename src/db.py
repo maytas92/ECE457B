@@ -97,9 +97,9 @@ class DbReader:
     POSTAGS_REGEX = ['JJ.*', 'RB.*', 'VB.*', 'NN.*']
     POSTAGS = ['JJ', 'RB', 'VB', 'NN']
     def __init__(self):
-        self.reviewList = []
+        pass
 
-    def parseData(self,q, reviewList):
+    def parseReviewData(self,q, reviewList):
         review_business_id = q.business_id
         review_text = q.text
         review_stars = q.stars
@@ -151,7 +151,7 @@ class DbReader:
             )
             #reviewList = [q for q in query]
             for q in query:
-                self.parseData( q, reviewList )
+                self.parseReviewData( q, reviewList )
         return reviewList
 
     def getUserReviews(self,user_id,num_reviews=1):
@@ -164,10 +164,33 @@ class DbReader:
                           .limit(num_reviews))
             #reviewList = [q for q in query]
             for q in query:
-                self.parseData( q , reviewList )
+                self.parseReviewData( q , reviewList )
                 
         return reviewList
+
+    def parseBusinessData( self, q, reviewList ):
+        business_id = q.business_id
+        stars = q.stars
+        business_name = q.business_name
+        review_count = q.review_count
+        reviewList.append({ \
+                            'business_id':business_id,
+                            'stars':stars,
+                            'business_name':business_name,
+                            'review_count':review_count
+                        })
         
+    def getBusinesses(self,num_businesses):
+        reviewList = []
+        with db.transaction():
+            query = (Business
+                     .select()
+                     .limit(num_businesses)
+                     )
+            for q in query:
+                self.parseBusinessData( q, reviewList )
+
+        return reviewList
 # Review Json Reader inherits the
 # functionality of a Json Reader
 # but may add additional methods
@@ -321,22 +344,24 @@ def readDb():
     NUM_RECORDS = 10
     db_reader = DbReader()
     business_id = '-1bOb2izeJBZjHC7NWxiPA'
-    businessReviews = db_reader.getBusinessReviews(business_id,NUM_RECORDS)
-    print "*********Business Reviews*************\n"
-    count = 0
-    for review in businessReviews:
-        count += 1
-        print "%d." % count, review['business_id'].business_id,review['business_id'].business_name , review['user_id'].user_id, review['user_id'].name , review['stars'], review['date']
-        print review['tagged_text'], "\n"
-  
-    print "********User Reviews**********\n"
-    count = 0
-    for reviewb in businessReviews:
-        userReviews = db_reader.getUserReviews(reviewb['user_id'],NUM_RECORDS)
-        for review in userReviews:
-            count += 1
-            print "%d." % count, review['business_id'].business_id,review['business_id'].business_name , review['user_id'].user_id, review['user_id'].name , review['stars'], review['date']
-            print review['tagged_text'], "\n"
+    businesses = db_reader.getBusinesses(10)
+
+    for business in businesses:
+        businessReviews = db_reader.getBusinessReviews(business['business_id'],NUM_RECORDS)
+        print "*********Business Reviews*************\n"
+        business_count = 0
+        for reviewb in businessReviews:
+            business_count += 1
+            print "%d." % business_count, reviewb['business_id'].business_id,reviewb['business_id'].business_name , reviewb['user_id'].user_id, reviewb['user_id'].name , reviewb['stars'], reviewb['date']
+            print reviewb['tagged_text'], "\n"
+            
+            print "********User Reviews**********\n"
+            user_count = 0
+            userReviews = db_reader.getUserReviews(reviewb['user_id'],NUM_RECORDS)
+            for reviewu in userReviews:
+                user_count += 1
+                print "%d.%d." % (business_count, user_count), reviewu['business_id'].business_id,reviewu['business_id'].business_name , reviewu['user_id'].user_id, reviewu['user_id'].name , reviewu['stars'], reviewu['date']
+                print reviewu['tagged_text'], "\n"
 
 
 def storeBusinessJson(NUM_RECORDS):
