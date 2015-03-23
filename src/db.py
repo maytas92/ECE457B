@@ -338,24 +338,17 @@ def storeReviewJson(NUM_RECORDS):
 
 def storeJsonToDb():
     db.connect()
-    #db.drop_tables([Business, Review, User],safe=True)
-    #db.create_tables([Business, Review, User],safe=True)
-    db.drop_tables([Review],safe=True)
-    db.create_tables([Review],safe=True)
+    db.drop_tables([Business, Review, User],safe=True)
+    db.create_tables([Business, Review, User],safe=True)
+    #db.drop_tables([Review],safe=True)
+    #db.create_tables([Review],safe=True)
     NUM_RECORDS = 750
-    #storeBusinessJson(NUM_RECORDS)
-    #storeUserJson(NUM_RECORDS)
+    storeBusinessJson(NUM_RECORDS)
+    storeUserJson(NUM_RECORDS)
     storeReviewJson(NUM_RECORDS)
 
 
     db.close()
-
-    ##### DONE WITH INPUT FILE ######
-
-    ###### START OUTPUT FILE ########
-    #review_json_reader.open_output_file()
-    #review_json_reader.write_to_output_file()
-    #review_json_reader.close_output_file()
 
 import sys
 if __name__ == '__main__':

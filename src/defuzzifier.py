@@ -1,3 +1,4 @@
+from numpy import arange as arange
 class Defuzzifier:
 
     def __init__(self):
@@ -9,9 +10,9 @@ class Defuzzifier:
     def defuzzify(self, f, start, end, step_size=1e-3):
         weight_sum = 0
         total_sum =0
-        for x in self.xfrange(start, end, step_size):
-            total_sum += f(x) * x
-            weight_sum += f(x)
+        for x in arange(start, end, step_size):
+               total_sum += f(x) * x
+               weight_sum += f(x)
         if weight_sum > 0 :
             return total_sum/weight_sum
         else :

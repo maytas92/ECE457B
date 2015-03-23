@@ -5,7 +5,7 @@ _DEBUG = 0
 # Must specify a 'then' membership function.
 class Rule(object):
     def __init__(self, rulename=None, **kwargs):
-        self._description = rulename #optional parameter, useful for debugging
+        self._rulename = rulename #optional parameter, useful for debugging
         self._conditions = []
         self._consequence = None
 
@@ -21,7 +21,10 @@ class Rule(object):
     def and_(self, *args, **kwargs):
         return self.if_(*args, **kwargs)
 
-    # Sets consequence of the rule.
+    # Object for building rules. Example call:
+    #   rule = Rule()
+    #   rule.if_('verb', f1).and_('adjective', f2).then('adverb', f3)
+    # Must specify a 'then' membership function.
     def then(self, variable_name, membership_function):
         self._consequence = (variable_name, membership_function,)
         return self
@@ -31,8 +34,7 @@ class Rule(object):
 
     def get_consequence(self):
         if not self._consequence:
-            raise Exception("Consequence not specified for this rule '%s'" \
-                    % (self._description,))
+            raise Exception("Consequence not specified for this rule '%s'" % (self._rulename,))
         return self._consequence[1]
 
     def clear(self):
@@ -40,10 +42,7 @@ class Rule(object):
         self._consequence = None
 
     def describe(self):
-        return self._description
-
-    def __str__(self):
-        return self.describe()
+        return self._rulename
 
 # Performs fuzzy inferencing. The constructor takes in undefined
 # number of 'Rule' objects. Example call:
@@ -61,28 +60,31 @@ class Inferencer(object):
             #print variable_name, membership_function
             if variable_name not in inputs:
                 if _DEBUG:
-                    print 'Ignoring rule "', rule.describe(), \
-                            '" due to insufficient parameters'
+                    print 'Ignoring rule "', rule.describe(), '" due to insufficient parameters'
                 continue
+                #raise Exception("Input not specified for variable '%s'" % (variable_name,))
             inputvalue = inputs[variable_name]
 
             intersections.append(membership_function(inputvalue))
 
-
+        # Empty intersections is false
+        if not intersections:
+            return lambda x: 0
         # The firing strength is the minimum of all
-        # the intersection points. 0 if there are no intersections
-        firing_strength = min(intersections) if intersections else 0
+        # the intersection points.
+        firing_strength = min(intersections)
 
 
         # The output membership function of this rulue is the firing
         # strength times the consequence membership function
-        return lambda x: min(firing_strength, rule.get_consequence()(x))
+        return lambda x: min( firing_strength , rule.get_consequence()(x) )
 
     # Performs fuzzy inferencing based on some input values.
     # Rules must be defined over the values passed in.
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
+        print inputs
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
@@ -112,8 +114,4 @@ def main():
 
     # After this pass 'ouptput_membership_function' to the defuzzifier.
     # Call would look something this this:
-    outputvalue = defuzzifier(output_membership_function, 0.0, 5.0, 1);
-    #outputvalue = defuzzifier(ouptput_membership_function, step_size=1e-1)
-
-if __name__ == '__main__':
-    main()
+    outputvalue = defuzzifier(output_membership_function, 0.0, 5.0, 1e-1)

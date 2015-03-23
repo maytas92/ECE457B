@@ -131,6 +131,126 @@ class ReviewJsonReader(JsonReader):
                                 self.review_star_rating)
                             ))
 
+# Review Json Reader inherits the
+# functionality of a Json Reader
+# but may add additional methods
+# for custom processing of a review
+# json object
+class GroupJsonReader(JsonReader):
+
+  # Adjectives, Adverbs, verbs, Nouns
+  POSTAGS_REGEX = ['JJ.*', 'RB.*', 'VB.*', 'NN.*']
+  POSTAGS = ['JJ', 'RB', 'VB', 'NN']
+
+  def __init__(self, input_file, output_file):
+    self.input_file = input_file
+    self.output_file = output_file
+    self.pos_tag_review_output = OrderedDict()
+    JsonReader.__init__(self, input_file, output_file)
+
+  def process_record(self, num_records=1):
+    record = JsonReader.iterate_input_file(self, num_records)
+
+    review_business_id = record['business_id']
+    review_text = record['text']
+    review_stars = record['stars']
+    review_date = record['date']
+
+    # NLTK Tokenization and Tagging
+    tokenized_review_text = word_tokenize(review_text)
+    pos_tag_review = pos_tag(tokenized_review_text)
+
+    # {"somePOSTag" ->  ['someWord1', 'someWord2' ..],
+    #  "somePOSTag2" -> ['someOtherWord2, 'someOtherWord2']
+    #   ..
+    #  "somePOSTagn" -> [ .. ]"}
+    # Ensure that keys are ordered based on POSTAGS
+    pos_tag_review_map = OrderedDict()
+
+    for pt in self.POSTAGS:
+      pos_tag_review_map[pt] = []
+
+    # posTagReview is a list
+    # Each list item is a tuple of two items
+    # (u'someWord', 'somePOSTag')
+    for item in pos_tag_review:
+      token = item[0]
+      posTag = item[1]
+      for idx, ele in enumerate(self.POSTAGS_REGEX):
+        if re.match(ele, posTag):
+          pos_tag_review_map[self.POSTAGS[idx]].append(token)
+          break
+
+    # Adding necessary attributes to the output arrays
+    # These are written back to the output file
+    if review_business_id in self.pos_tag_review_output:
+      self.pos_tag_review_output[review_business_id].append((pos_tag_review_map,review_stars))      
+    else :
+      self.pos_tag_review_output[review_business_id] = [(post_tag_review_map,review_stars)]
+
+    #print pos_tag_review_map
+
+  def write_to_output_file(self):
+    # The object written is a nested array
+    # Each element of the nested array comprises of two
+    # elements. The first is an 'Ordered Dict' with
+    # four keys 'JJ', 'RB', 'VB' and 'NN'.
+    # The second element is the review star rating.
+    self.o_file_object.write(json.dumps( \
+                                         self.pos_tag_review_output
+                           ))
+
+class BusinessJsonReader( JsonReader ):
+  
+  def __init__(self, input_file, output_file):
+    self.input_file = '../data/yelp_academic_dataset_business.json',
+    self.output_file = '../output/yelp_review_output_business.json'
+    self.business_id_to_name_map = OrderedDict()
+    JsonReader.__init__(self, input_file, output_file)
+
+  def process_record(self, num_records=1):
+    record = JsonReader.iterate_input_file(self, num_records)
+
+    business_id = record['business_id']
+    business_name = record['name']
+    self.business_id_to_name_map[business_id] = business_name
+
+  def write_to_output_file(self):
+    # The object written is a nested array
+    # Each element of the nested array comprises of two
+    # elements. The first is an 'Ordered Dict' with
+    # four keys 'JJ', 'RB', 'VB' and 'NN'.
+    # The second element is the review star rating.
+    self.o_file_object.write(json.dumps( \
+                                         self.business_id_to_name_map
+                            ))
+
+class UserJsonReader( JsonReader ):
+    
+  def __init__(self,input_file,output_file):
+    self.input_file = '../data/yelp_academic_dataset_user.json',
+    self.output_file = '../output/yelp_review_output_user.json'
+    self.user_id_map = OrderedDict()
+    JsonReader.__init__(self, input_file, output_file)
+
+  def process_record(self, num_records=1):
+    record = JsonReader.iterate_input_file(self, num_records)
+
+    business_id = record['business_id']
+    business_name = record['name']
+    self.business_id_to_name_map[business_id] = business_name
+
+  def write_to_output_file(self):
+    # The object written is a nested array
+    # Each element of the nested array comprises of two
+    # elements. The first is an 'Ordered Dict' with
+    # four keys 'JJ', 'RB', 'VB' and 'NN'.
+    # The second element is the review star rating.
+    self.o_file_object.write(json.dumps( \
+                                         self.business_id_to_name_map
+                            ))
+
+                          
 # Perhaps, use a similar pattern for other files
 # class UserJsonReader(JsonReader):
 #
@@ -138,7 +258,7 @@ class ReviewJsonReader(JsonReader):
 
 # TODO: Satyam - Should not hardcode the inputs here
 # Gather from command line
-if __name__ == '__main__':
+def test1():
   NUM_RECORDS = 100
   review_json_reader = ReviewJsonReader(
                    '../data/yelp_academic_dataset_review.json',
@@ -162,3 +282,33 @@ if __name__ == '__main__':
   review_json_reader.close_output_file()
 
 ########################################
+
+def test2():
+  NUM_RECORDS = 100
+  review_json_reader = GroupJsonReader(
+                   '../data/yelp_academic_dataset_review.json',
+                   '../output/yelp_review_output.json')
+
+  ################ Tests #################
+  review_json_reader.open_input_file()
+  review_json_reader.read_input_file()
+
+  # Should return the first ten json records
+  for i in range(NUM_RECORDS):
+    review_json_reader.process_record()
+
+  
+
+  review_json_reader.close_input_file()
+
+  ##### DONE WITH INPUT FILE ######
+
+  ###### START OUTPUT FILE ########
+  review_json_reader.open_output_file()
+  review_json_reader.write_to_output_file()
+  review_json_reader.close_output_file()
+
+########################################
+
+if __name__ == '__main__':
+  test2()
