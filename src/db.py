@@ -340,10 +340,16 @@ class UserJsonReader( JsonReader ):
 
 # TODO: Satyam - Should not hardcode the inputs here
 # Gather from command line
+# Reads NUM_RECORDS count of reviews belonging to 
+# a particular business. 
+# For each business review found, it will find 'NUM_RECORDS'
+# count of reviews by the user. This may help to assign
+# a weight to that particular business review.
 def readDb():
     NUM_RECORDS = 10
     db_reader = DbReader()
     business_id = '-1bOb2izeJBZjHC7NWxiPA'
+
     businesses = db_reader.getBusinesses(10)
 
     for business in businesses:
@@ -362,7 +368,6 @@ def readDb():
                 user_count += 1
                 print "%d.%d." % (business_count, user_count), reviewu['business_id'].business_id,reviewu['business_id'].business_name , reviewu['user_id'].user_id, reviewu['user_id'].name , reviewu['stars'], reviewu['date']
                 print reviewu['tagged_text'], "\n"
-
 
 def storeBusinessJson(NUM_RECORDS):
     business_json_reader = BusinessJsonReader(

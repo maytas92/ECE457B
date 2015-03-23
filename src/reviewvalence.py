@@ -14,6 +14,7 @@ from defuzzifier import Defuzzifier
 import abc
 import getopt, sys
 from util import maxabs, avg
+from db import DbReader
 
 _DEBUG = 1
 
@@ -293,6 +294,61 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         # the words for each 'POS tag'.
         self.output_pos_max_valence = []
 
+    def process_db_reviews(self, reviews):
+        # Keep track of the review ratings for computing accuracy
+        db_review_star_ratings = []
+        # review consists of 
+        # 'date'
+        # 'user_id'
+        # 'business_id'
+        # 'stars'
+        # 'tagged_text'
+        for review in reviews:
+            db_review_star_ratings.append(review['stars'])
+            word_with_valence_count = 0
+            review_words_count = 0
+            pos_tag_max_valence = OrderedDict()
+            for pos_tag, words in review['tagged_text'].items():
+                # Check if word exists in the valence data
+                max_valence = INIT_MAX_VALENCE
+                for word in words:
+                    review_words_count += 1
+                    valence_score = self._get_valence_score(word)
+                    if valence_score != DOES_NOT_EXIST:
+                        # To ensure that if words have a
+                        # valence of -3, and +2: then -3
+                        # would be preferred.
+                        abs_valence_score = abs(int(valence_score))
+
+                        if abs_valence_score > max_valence:
+                            max_valence = abs_valence_score
+                            pos_tag_max_valence[pos_tag] = (int(valence_score), word)
+                        word_with_valence_count += 1
+                    else:
+                        self.unique_non_valence_words[word] += 1
+            # Append the max_valence map data to the output array
+            self.output_pos_max_valence.append(pos_tag_max_valence)
+
+        print 'Inferencing'
+        # Iterate through the max_valence data and get inferencing!
+        for review in self.output_pos_max_valence:
+            inputs = dict()
+            for pos_tag, tup in review.items():
+                valence, _ = tup
+                inputs[self._postag_to_name(pos_tag)] = valence
+            output = self.review_inferencer.infer(**inputs)
+            #print 'Output is ', output(5)
+            defuzzifier = Defuzzifier()
+            outputvalue = defuzzifier(output, 0.0, 5.0, 1e-1)
+            self.defuzzied_review_ratings.append(round(outputvalue, 1))
+
+            if _DEBUG:
+                print 'Defuzzified Value is', format(outputvalue, '.1f')
+
+        StatAnalysis.get_review_rating_accuracy(db_review_star_ratings, self.defuzzied_review_ratings)
+        StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
+
+
     # Iterates through the first 'num_reviews'
     # For each review it looks up the valence
     # score for each word across all POS tags.
@@ -422,6 +478,39 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
         StatAnalysis.get_review_rating_accuracy(self.review_json.review_star_rating, self.defuzzied_review_ratings)
         StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
 
+    def process_db_reviews(self, reviews):
+        # Keep track of the review ratings for computing accuracy
+        db_review_star_ratings = []
+        # review consists of 
+        # 'date'
+        # 'user_id'
+        # 'business_id'
+        # 'stars'
+        # 'tagged_text'
+        for review in reviews:
+            pos_tag_average_valence = dict()
+            db_review_star_ratings.append(review['stars'])
+            for pos_tag, words in review['tagged_text'].items():
+                if not words: continue
+                cummulative_valence = sum(map(self._get_valence_score, words))
+                postage_name = self._postag_to_name(pos_tag)
+                pos_tag_average_valence[postage_name] = cummulative_valence / len(words)
+            # Append the max_valence map data to the output array
+            self._output_pos_average_valences.append(pos_tag_average_valence)
+
+        print 'Inferencing'
+        # Iterate through the max_valence data and get inferencing!
+        for review in self._output_pos_average_valences:
+            output = self.review_inferencer.infer(**review)
+            defuzzifier = Defuzzifier()
+            outputvalue = defuzzifier(output, 0.0, 5.0, 1e-1);
+            self.defuzzied_review_ratings.append(round(outputvalue, 1))
+            if _DEBUG:
+                print 'Defuzzified Value is', format(outputvalue, '.1f')
+
+        StatAnalysis.get_review_rating_accuracy(db_review_star_ratings, self.defuzzied_review_ratings)
+        StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
+
     def _get_valence_score(self, word):
         if word in self.valencedata._data_map:
             return int(self.valencedata._data_map[word])
@@ -493,10 +582,27 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
             return int(self.valencedata._data_map[word])
         return 0
 
+def testDB():
+    NUM_RECORDS = 10
+    db_reader = DbReader()
+    business_id = '-1bOb2izeJBZjHC7NWxiPA'
+    businessReviews = db_reader.getBusinessReviews(business_id,NUM_RECORDS)
+
+    print "*********Business Reviews*************\n"
+
+    max_pos_method = MaxPOSValenceMethod()
+    max_pos_method.process_db_reviews(businessReviews)
+
+    average_pos_method = AveragePOSValenceMethod()
+    average_pos_method.process_db_reviews(businessReviews)
+
+
 ############### MAIN ###############
 if __name__ == '__main__':
     if len(sys.argv[1:]) < 1:
-        print 'reviewvalence.py -n <numreviews>'
+        "Testing DB Read + Inferencing"
+        testDB()
+        #print 'reviewvalence.py -n <numreviews>'
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:],"hn:",["numreviews="])
