@@ -13,8 +13,9 @@ from collections import OrderedDict, defaultdict
 from defuzzifier import Defuzzifier
 import abc
 import getopt, sys
+from util import maxabs, avg
 
-_DEBUG = 0
+_DEBUG = 1
 
 # constant that denotes that
 # a word is not found in the
@@ -201,7 +202,7 @@ class ReviewClassificationMethod(object):
         self._rule40.if_('adjective', med_positive).and_('adverb', med_negative).then('orientation', moderate_otn)
 
         self._rule41 = Rule('IF adjective is high_positive AND adverb is high_negative THEN orientation is moderate_otn')
-        self._rule41.if_('adjective', high_positive).and_('adverb', high_negative).then('orientation', moderate_otn) 
+        self._rule41.if_('adjective', high_positive).and_('adverb', high_negative).then('orientation', moderate_otn)
 
         # Adverbs and Adjectives
         self._rule42 = Rule('IF adverb is low_positive AND adjective is low_negative THEN orientation is moderate_otn')
@@ -211,7 +212,7 @@ class ReviewClassificationMethod(object):
         self._rule43.if_('adverb', med_positive).and_('adjective', med_negative).then('orientation', moderate_otn)
 
         self._rule44 = Rule('IF adverb is high_positive AND adjective is high_negative THEN orientation is moderate_otn')
-        self._rule44.if_('adverb', high_positive).and_('adjective', high_negative).then('orientation', moderate_otn) 
+        self._rule44.if_('adverb', high_positive).and_('adjective', high_negative).then('orientation', moderate_otn)
 
         # Nouns and Verbs
         self._rule45 = Rule('IF noun is low_negative AND verb is low_positive THEN orientation is moderate_otn')
@@ -221,7 +222,7 @@ class ReviewClassificationMethod(object):
         self._rule46.if_('noun', med_negative).and_('verb', med_negative).then('orientation', moderate_otn)
 
         self._rule47 = Rule('IF noun is high_negative AND verb is high_positive THEN orientation is moderate_otn')
-        self._rule47.if_('noun', high_negative).and_('verb', high_positive).then('orientation', moderate_otn)  
+        self._rule47.if_('noun', high_negative).and_('verb', high_positive).then('orientation', moderate_otn)
 
         # High with Lows
         # Adverbs/Adjectives
@@ -232,7 +233,7 @@ class ReviewClassificationMethod(object):
         self._rule49.if_('adverb', high_positive).and_('adjective', med_negative).then('orientation', high_otn)
 
         self._rule50 = Rule('IF adverb is high_positive AND adjective is high_positive THEN orientation is very_high_otn')
-        self._rule50.if_('adverb', high_positive).and_('adjective', high_positive).then('orientation', very_high_otn)  
+        self._rule50.if_('adverb', high_positive).and_('adjective', high_positive).then('orientation', very_high_otn)
 
         #Nouns/Verbs
         self._rule51 = Rule('IF noun is high_positive AND verb is low_positive THEN orientation is very_moderate_otn')
@@ -242,7 +243,7 @@ class ReviewClassificationMethod(object):
         self._rule52.if_('noun', high_positive).and_('verb', med_negative).then('orientation', moderate_otn)
 
         self._rule53 = Rule('IF noun is high_positive AND verb is high_positive THEN orientation is very_high_otn')
-        self._rule53.if_('noun', high_positive).and_('verb', high_positive).then('orientation', very_high_otn)                
+        self._rule53.if_('noun', high_positive).and_('verb', high_positive).then('orientation', very_high_otn)
 
         # Recency based rules
 
@@ -301,7 +302,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         for i in range(num_reviews):
             if counter % 100 == 0:
                 print '.',
-            counter += 1    
+            counter += 1
             self.review_json.process_record()
 
         # review_output is a map with the key being a POS Tag
@@ -429,6 +430,69 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             self.unique_non_valence_words[word] += 1
         return 0
 
+# Scores reviews based on the maximum average valance of
+# each POS.
+class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
+
+    def __init__(self):
+        ReviewClassificationMethod.__init__(self)
+
+        # An array of review elements. Each review element contains
+        # a map with a key for each 'POS tag' and its corresponding
+        # value to be the 'average' valence.
+        # The 'average' valence is simply the average of the valences of
+        # the words for each 'POS tag'.
+        self._output_pos_average_valences = []
+
+    # Iterates through the first 'num_reviews'
+    # For each review it looks up the valence
+    # score for each word across all POS tags.
+    def process_reviews(self, num_reviews):
+        # Should return the first ten json records
+        for i in range(num_reviews):
+            self.review_json.process_record()
+
+        # review_output is a map with the key being a POS Tag
+        # and the value an array of words falling into that
+        # POS Tag category.
+        print 'Iterating through review json data'
+        for review_output in self.review_json.pos_tag_review_output:
+            pos_tag_average_valence = dict()
+            pos_cummulative_valence, neg_cummulative_valence = 0, 0
+            for pos_tag, words in review_output.items():
+                if not words: continue
+                positive_valence_scores = \
+                    [self._get_valence_score(w) for w in words if self._get_valence_score(w) > 0]
+                positive_average = avg(positive_valence_scores)
+
+                negative_valence_scores = \
+                    [self._get_valence_score(w) for w in words if self._get_valence_score(w) < 0]
+                negative_average = avg(negative_valence_scores)
+
+                postage_name = self._postag_to_name(pos_tag)
+                pos_tag_average_valence[postage_name] = maxabs(positive_average, negative_average)
+
+            #print pos_tag_average_valence
+            self._output_pos_average_valences.append(pos_tag_average_valence)
+
+        print 'Inferencing'
+        # Iterate through the average valence data and get inferencing!
+        for review in self._output_pos_average_valences:
+            output = self.review_inferencer.infer(**review)
+            defuzzifier = Defuzzifier()
+            outputvalue = defuzzifier(output, 0.0, 5.0, 1e-1);
+            self.defuzzied_review_ratings.append(round(outputvalue, 1))
+            if _DEBUG:
+                print 'Defuzzified Value is', format(outputvalue, '.1f')
+
+        StatAnalysis.get_review_rating_accuracy(self.review_json.review_star_rating, self.defuzzied_review_ratings)
+        StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
+
+    def _get_valence_score(self, word):
+        if word in self.valencedata._data_map:
+            return int(self.valencedata._data_map[word])
+        return 0
+
 ############### MAIN ###############
 if __name__ == '__main__':
     if len(sys.argv[1:]) < 1:
@@ -446,10 +510,14 @@ if __name__ == '__main__':
         elif opt in ("-n", "--numreviews"):
             numreviews = arg
     print 'Number of Reviews ', numreviews
-    print 'Running Max Valence method'
-    max_pos_method = MaxPOSValenceMethod()
-    max_pos_method.process_reviews(int(numreviews))
+    #print 'Running Max Valence method'
+    #max_pos_method = MaxPOSValenceMethod()
+    #max_pos_method.process_reviews(int(numreviews))
 
-    print '\n\nRunning Average Valence'
-    average_pos_method = AveragePOSValenceMethod()
-    average_pos_method.process_reviews(int(numreviews))
+    #print '\n\nRunning Average Valence'
+    #average_pos_method = AveragePOSValenceMethod()
+    #average_pos_method.process_reviews(int(numreviews))
+
+    print '\n\nRunning Max-Average Valence'
+    max_average_pos_method = MaxAveragePOSValenceMethod()
+    max_average_pos_method.process_reviews(int(numreviews))
