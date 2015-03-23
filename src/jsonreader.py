@@ -75,6 +75,7 @@ class ReviewJsonReader(JsonReader):
     self.output_file = output_file
     self.pos_tag_review_output = []
     self.review_star_rating = []
+    self.review_dates = []
     JsonReader.__init__(self, input_file, output_file)
 
   def process_record(self, num_records=1):
@@ -84,6 +85,7 @@ class ReviewJsonReader(JsonReader):
     review_text = record['text']
     review_stars = record['stars']
     review_date = record['date']
+    review_user = record['user_id']
 
     # NLTK Tokenization and Tagging
     tokenized_review_text = word_tokenize(review_text)
@@ -114,6 +116,7 @@ class ReviewJsonReader(JsonReader):
     # These are written back to the output file
     self.pos_tag_review_output.append(pos_tag_review_map)
     self.review_star_rating.append(review_stars)
+    self.review_dates.append(review_date)
 
     #print pos_tag_review_map
 

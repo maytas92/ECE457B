@@ -16,10 +16,13 @@ class Triangle:
         self._b = b
         self._c = c
 
+    def __call__(self, *args, **kwargs):
+        return self.get_membership(*args, **kwargs)
+
     # Returns the membership of an element 'x'
     # based on the triangular membership function
     # parameter 'a', 'b' and 'c'.
-    def _get_membership(self, x, num_digits_precision=4):
+    def get_membership(self, x, num_digits_precision=4):
         if x < self._a:
             return 0
         elif x >= self._a and x <= self._b:
@@ -33,10 +36,6 @@ class Triangle:
         elif x > self._c:
             return 0
 
-    def __call__(self, *args, **kwargs):
-        return self._get_membership(*args, **kwargs)
-
-
 def main():
     # A typical triangular membership function
     t1 = Triangle(0, 3, 6)
@@ -46,21 +45,29 @@ def main():
     # A triangular membership function that is clipped
     # from the right hand side
     t3 = Triangle(3, 6, 6)
+
+    # A triangular membership function with negative integer
+    # input
+    t4 = Triangle(0, -2, -2)
     # invalid triangular membership functions
     #t4 = Triangle(1, 0, 3)
     #t5 = Triangle(1, 3, 2)
 
     print "Testing a normal triangular membership function"
     for i in range(-1, 8):
-        print "x=", i, " membership=", t1(i, 2)
+        print "x=", i, " membership=", t1.get_membership(i, 2)
 
     print "Testing the left clipped triangular membership function"
     for i in range(-1, 7):
-        print "x=", i, " membership=", t2(i)
+        print "x=", i, " membership=", t2.get_membership(i)
 
     print "Testing the right clipped triangular membership function"
     for i in range(2, 8):
-        print "x=", i, " membership=", t3(i)
+        print "x=", i, " membership=", t3.get_membership(i)
+
+    print "Testing the triangular membership function with negative input"
+    for i in ranage(-3, 1):
+        print "x=", i, " membership=", t4.get_membership(i)
 
 if __name__ == '__main__':
     main()
