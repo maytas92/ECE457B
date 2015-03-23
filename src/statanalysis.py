@@ -18,5 +18,13 @@ class StatAnalysis:
         print 'Std error ', std_err
         print 'IQR ', percentile(error_arr, 75) - percentile(error_arr, 25)
 
+    @staticmethod
+    def get_review_rating_stats(ratings):
+        print 'Average rating ', mean(ratings)
+        print 'Median rating ', median(ratings)
+        print 'Std rating ', std(ratings)
+
+
 if __name__ == '__main__':
     StatAnalysis.get_review_rating_accuracy([1, 3, 5, 2, 4], [2, 3, 4.5, 2, 3.75])
+    StatAnalysis.get_review_rating_stats([1, 2, 3, 4, 5])
