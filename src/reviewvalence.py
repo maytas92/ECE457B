@@ -459,9 +459,10 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             pos_tag_average_valence = dict()
             for pos_tag, words in review_output.items():
                 if not words: continue
-                cummulative_valence = sum(map(self._get_valence_score, words))
                 postage_name = self._postag_to_name(pos_tag)
-                pos_tag_average_valence[postage_name] = cummulative_valence / len(words)
+                pos_tag_average_valence[postage_name] = avg( \
+                    [self._get_valence_score(w) \
+                        for w in words if self._get_valence_score(w) > 0])
             #print pos_tag_average_valence
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
@@ -492,9 +493,10 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             db_review_star_ratings.append(review['stars'])
             for pos_tag, words in review['tagged_text'].items():
                 if not words: continue
-                cummulative_valence = sum(map(self._get_valence_score, words))
                 postage_name = self._postag_to_name(pos_tag)
-                pos_tag_average_valence[postage_name] = cummulative_valence / len(words)
+                pos_tag_average_valence[postage_name] = avg( \
+                    [self._get_valence_score(w) \
+                        for w in words if self._get_valence_score(w) > 0])
             # Append the max_valence map data to the output array
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
@@ -616,13 +618,13 @@ if __name__ == '__main__':
         elif opt in ("-n", "--numreviews"):
             numreviews = arg
     print 'Number of Reviews ', numreviews
-    #print 'Running Max Valence method'
-    #max_pos_method = MaxPOSValenceMethod()
-    #max_pos_method.process_reviews(int(numreviews))
+    print 'Running Max Valence method'
+    max_pos_method = MaxPOSValenceMethod()
+    max_pos_method.process_reviews(int(numreviews))
 
-    #print '\n\nRunning Average Valence'
-    #average_pos_method = AveragePOSValenceMethod()
-    #average_pos_method.process_reviews(int(numreviews))
+    print '\n\nRunning Average Valence'
+    average_pos_method = AveragePOSValenceMethod()
+    average_pos_method.process_reviews(int(numreviews))
 
     print '\n\nRunning Max-Average Valence'
     max_average_pos_method = MaxAveragePOSValenceMethod()
