@@ -16,7 +16,7 @@ import getopt, sys
 from util import maxabs, avg
 from db import DbReader
 
-_DEBUG = 1
+_DEBUG = 0
 
 # constant that denotes that
 # a word is not found in the
@@ -297,7 +297,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
     def process_db_reviews(self, reviews):
         # Keep track of the review ratings for computing accuracy
         db_review_star_ratings = []
-        # review consists of 
+        # review consists of
         # 'date'
         # 'user_id'
         # 'business_id'
@@ -482,7 +482,7 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
     def process_db_reviews(self, reviews):
         # Keep track of the review ratings for computing accuracy
         db_review_star_ratings = []
-        # review consists of 
+        # review consists of
         # 'date'
         # 'user_id'
         # 'business_id'

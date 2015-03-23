@@ -84,7 +84,7 @@ class Inferencer(object):
     # Example call:
     #   inferencer.infer(x=x_value, y=y_value, z=z_value)
     def infer(self, **inputs):
-        print inputs
+        #print inputs
         # Get the consequence membership functions from all the rules
         consequences = map(lambda rule: self._compute_rule(rule, inputs), self._rules)
         # The output membership function at 'x' is the
