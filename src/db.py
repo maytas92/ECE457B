@@ -191,6 +191,13 @@ class DbReader:
                 self.parseBusinessData( q, reviewList )
 
         return reviewList
+
+    def getUser(self, user_id):
+        user = User.get(User.user_id==user_id)
+        return {'name':user.name, 
+                'review_count':user.review_count,
+                'average_stars':user.average_stars
+                }
 # Review Json Reader inherits the
 # functionality of a Json Reader
 # but may add additional methods

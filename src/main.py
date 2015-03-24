@@ -1,10 +1,20 @@
 #!/usr/bin/python
 import sys, getopt
 from db import DbReader
-from util import avg
+from userweight import UserWeight
 from reviewvalence import MaxPOSValenceMethod, \
                           AveragePOSValenceMethod, \
                           MaxAveragePOSValenceMethod
+
+def printBusinessRating(user_weights, review_ratings):
+    # Sum of product of user weights and review ratings
+    uw_rr_sum = 0
+    # user weight sum
+    uw_sum = 0 
+    for uw, rr, in zip(user_weights, review_ratings):
+        uw_rr_sum += uw * rr
+        uw_sum += uw
+    print '*****Business Rating******', uw_rr_sum / uw_sum
 
 def run_analysis(num_businesses, num_reviews):
     db_reader = DbReader()
@@ -15,19 +25,24 @@ def run_analysis(num_businesses, num_reviews):
         if len(businessReviews) < num_reviews:
             continue
 
+        user_weights = UserWeight.get_user_weights(businessReviews)
+
         print '\n', business['business_name'], ' ', len(businessReviews), ' Reviews found\n'
 
         print 'Running Maximum Valence Method'
         max_pos_method = MaxPOSValenceMethod()
-        max_pos_method.process_db_reviews(businessReviews)
+        review_ratings = max_pos_method.process_db_reviews(businessReviews)
+        printBusinessRating(user_weights, review_ratings)
 
         print 'Running Average Valence Method'
         average_pos_method = AveragePOSValenceMethod()
-        average_pos_method.process_db_reviews(businessReviews)
+        review_ratings = average_pos_method.process_db_reviews(businessReviews)
+        printBusinessRating(user_weights, review_ratings)
 
         print 'Running Maximum Average Valence Method'
         max_average_pos_method = MaxAveragePOSValenceMethod()
-        max_average_pos_method.process_db_reviews(businessReviews)
+        review_ratings = max_average_pos_method.process_db_reviews(businessReviews)
+        printBusinessRating(user_weights, review_ratings)
 
 
 if __name__ == '__main__':

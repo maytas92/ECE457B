@@ -15,16 +15,18 @@ class StatAnalysis:
         median_error = median(error_arr)
         std_err = std(error_arr)
 
-        print 'Average error ', avg_error
-        print 'Median error ', median_error
-        print 'Std error ', std_err
+        print 'Rating Errors',
+        print 'Average ', avg_error, 
+        print 'Median ', median_error, 
+        print 'Std  ', std_err
         #print 'IQR ', percentile(error_arr, 75) - percentile(error_arr, 25)
 
     @staticmethod
     def get_review_rating_stats(ratings):
-        print 'Business rating - Average ', mean(ratings)
-        print 'Business rating - Median ', median(ratings)
-        print 'Business rating - Standard Dev ', std(ratings)
+        print 'Defuzd Rating ',
+        print 'Average ', mean(ratings),
+        print 'Median ', median(ratings),
+        print 'Std ', std(ratings)
 
 
 if __name__ == '__main__':

@@ -351,6 +351,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         StatAnalysis.get_review_rating_accuracy(db_review_star_ratings, self.defuzzied_review_ratings)
         StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
 
+        return self.defuzzied_review_ratings
 
     # Iterates through the first 'num_reviews'
     # For each review it looks up the valence
@@ -519,6 +520,8 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
         StatAnalysis.get_review_rating_accuracy(db_review_star_ratings, self.defuzzied_review_ratings)
         StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
 
+        return self.defuzzied_review_ratings
+
     def _get_valence_score(self, word):
         if word in self.valencedata._data_map:
             return int(self.valencedata._data_map[word])
@@ -585,6 +588,8 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
 
         StatAnalysis.get_review_rating_accuracy(db_review_star_ratings, self.defuzzied_review_ratings)
         StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
+
+        return self.defuzzied_review_ratings
 
     # Iterates through the first 'num_reviews'
     # For each review it looks up the valence
