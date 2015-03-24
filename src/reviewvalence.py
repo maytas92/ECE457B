@@ -295,6 +295,9 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         self.output_pos_max_valence = []
 
     def process_db_reviews(self, reviews):
+        if not reviews:
+            print 'No input reviews found - exiting.'
+            return
         # Keep track of the review ratings for computing accuracy
         db_review_star_ratings = []
         # review consists of
@@ -329,7 +332,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
             # Append the max_valence map data to the output array
             self.output_pos_max_valence.append(pos_tag_max_valence)
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the max_valence data and get inferencing!
         for review in self.output_pos_max_valence:
             inputs = dict()
@@ -480,6 +483,9 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
         StatAnalysis.get_review_rating_stats(self.defuzzied_review_ratings)
 
     def process_db_reviews(self, reviews):
+        if not reviews:
+            print 'No input reviews found - exiting'
+            return
         # Keep track of the review ratings for computing accuracy
         db_review_star_ratings = []
         # review consists of
@@ -536,6 +542,9 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
         self._output_pos_average_valences = []
 
     def process_db_reviews(self, reviews):
+        if not reviews:
+            print 'No input reviews found - exiting'
+            return
         # Keep track of the review ratings for computing accuracy
         db_review_star_ratings = []
         # review consists of 
@@ -564,7 +573,7 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
             # Append the max_valence map data to the output array
             self._output_pos_average_valences.append(pos_tag_max_average_valence)
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the max_valence data and get inferencing!
         for review in self._output_pos_average_valences:
             output = self.review_inferencer.infer(**review)
@@ -588,7 +597,8 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
         # review_output is a map with the key being a POS Tag
         # and the value an array of words falling into that
         # POS Tag category.
-        print 'Iterating through review json data'
+        if _DEBUG:
+            print 'Iterating through review json data'
         for review_output in self.review_json.pos_tag_review_output:
             pos_tag_average_valence = dict()
             pos_cummulative_valence, neg_cummulative_valence = 0, 0
@@ -608,7 +618,7 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
             #print pos_tag_average_valence
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the average valence data and get inferencing!
         for review in self._output_pos_average_valences:
             output = self.review_inferencer.infer(**review)
@@ -627,7 +637,7 @@ class MaxAveragePOSValenceMethod(ReviewClassificationMethod):
         return 0
 
 def testDB():
-    NUM_RECORDS = 50
+    NUM_RECORDS = 100
     db_reader = DbReader()
     business_id = '-1bOb2izeJBZjHC7NWxiPA'
     businessReviews = db_reader.getBusinessReviews(business_id,NUM_RECORDS)

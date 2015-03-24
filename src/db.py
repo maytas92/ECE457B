@@ -424,7 +424,7 @@ def storeJsonToDb():
     db.create_tables([Business, Review, User],safe=True)
     #db.drop_tables([Review],safe=True)
     #db.create_tables([Review],safe=True)
-    NUM_RECORDS = 750
+    NUM_RECORDS = 500
     storeBusinessJson(NUM_RECORDS)
     storeUserJson(NUM_RECORDS)
     storeReviewJson(NUM_RECORDS)
