@@ -172,7 +172,7 @@ class DbReader:
         business_id = q.business_id
         stars = q.stars
         business_name = q.business_name
-        review_count = q.review_count
+        review_count = q.count
         reviewList.append({ \
                             'business_id':business_id,
                             'stars':stars,
@@ -184,7 +184,7 @@ class DbReader:
         reviewList = []
         with db.transaction():
             query = (Business
-                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('review_count'))
+                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('count'))
                      .join(Review)
                      .group_by(Business)
                      .limit(num_businesses)
@@ -209,10 +209,10 @@ class DbReader:
         reviewList = []
         with db.transaction():
             query = (Business
-                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('review_count'))
+                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('count'))
                      .join(Review)
                      .group_by(Business)
-                     .having( fn.Count(Business.business_id) > review_count )
+                     .having( fn.Count(Business.business_id) >= review_count )
                      .limit(num_businesses)
                      )
             for q in query:
@@ -383,21 +383,24 @@ def readDb():
     businesses = db_reader.getBusinessesByReviewCount(10,10)
 
     for business in businesses:
-        businessReviews = db_reader.getBusinessReviews(business['business_id'],NUM_RECORDS)
-        print "*********Business Reviews*************\n"
-        business_count = 0
-        for reviewb in businessReviews:
-            business_count += 1
-            print "%d." % business_count, reviewb['business_id'].business_id,reviewb['business_id'].business_name , reviewb['user_id'].user_id, reviewb['user_id'].name , reviewb['stars'], reviewb['date']
-            print reviewb['tagged_text'], "\n"
+        print business['business_id'], "\t", business['business_name'], "\t", business['review_count'], "\t", business['stars']
+
+    # for business in businesses:
+    #     businessReviews = db_reader.getBusinessReviews(business['business_id'],NUM_RECORDS)
+    #     print "*********Business Reviews*************\n"
+    #     business_count = 0
+    #     for reviewb in businessReviews:
+    #         business_count += 1
+    #         print "%d." % business_count, reviewb['business_id'].business_id,reviewb['business_id'].business_name , reviewb['user_id'].user_id, reviewb['user_id'].name , reviewb['stars'], reviewb['date']
+    #         print reviewb['tagged_text'], "\n"
             
-            print "********User Reviews**********\n"
-            user_count = 0
-            userReviews = db_reader.getUserReviews(reviewb['user_id'],NUM_RECORDS)
-            for reviewu in userReviews:
-                user_count += 1
-                print "%d.%d." % (business_count, user_count), reviewu['business_id'].business_id,reviewu['business_id'].business_name , reviewu['user_id'].user_id, reviewu['user_id'].name , reviewu['stars'], reviewu['date']
-                print reviewu['tagged_text'], "\n"
+    #         print "********User Reviews**********\n"
+    #         user_count = 0
+    #         userReviews = db_reader.getUserReviews(reviewb['user_id'],NUM_RECORDS)
+    #         for reviewu in userReviews:
+    #             user_count += 1
+    #             print "%d.%d." % (business_count, user_count), reviewu['business_id'].business_id,reviewu['business_id'].business_name , reviewu['user_id'].user_id, reviewu['user_id'].name , reviewu['stars'], reviewu['date']
+    #             print reviewu['tagged_text'], "\n"
 
 def storeBusinessJson(NUM_RECORDS):
     business_json_reader = BusinessJsonReader(
