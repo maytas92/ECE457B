@@ -6,7 +6,7 @@ from reviewvalence import MaxPOSValenceMethod, \
                           AveragePOSValenceMethod, \
                           MaxAveragePOSValenceMethod
 
-def printBusinessRating(user_weights, review_ratings):
+def get_business_rating(user_weights, review_ratings):
     # Sum of product of user weights and review ratings
     uw_rr_sum = 0
     # user weight sum
@@ -14,7 +14,12 @@ def printBusinessRating(user_weights, review_ratings):
     for uw, rr, in zip(user_weights, review_ratings):
         uw_rr_sum += uw * rr
         uw_sum += uw
-    print '*****Business Rating******', uw_rr_sum / uw_sum
+
+    if uw_sum:
+        business_rating = uw_rr_sum / uw_sum
+    else: 
+        business_rating = 0
+    return business_rating
 
 def run_analysis(num_businesses, num_reviews):
     db_reader = DbReader()
@@ -32,18 +37,27 @@ def run_analysis(num_businesses, num_reviews):
         print 'Running Maximum Valence Method'
         max_pos_method = MaxPOSValenceMethod()
         review_ratings = max_pos_method.process_db_reviews(businessReviews)
-        printBusinessRating(user_weights, review_ratings)
+        pred_business_rating = get_business_rating(user_weights, review_ratings)
+        print '***** Business Rating***** ', pred_business_rating
+        business_star_rating_err = abs(business['stars'] - pred_business_rating)
+        print 'Error in Business Rating ', business_star_rating_err
 
         print 'Running Average Valence Method'
         average_pos_method = AveragePOSValenceMethod()
         review_ratings = average_pos_method.process_db_reviews(businessReviews)
-        printBusinessRating(user_weights, review_ratings)
-
+        pred_business_rating = get_business_rating(user_weights, review_ratings)
+        print '***** Business Rating***** ', pred_business_rating
+        business_star_rating_err = abs(business['stars'] - pred_business_rating)
+        print 'Error in Business Rating ', business_star_rating_err
+         
         print 'Running Maximum Average Valence Method'
         max_average_pos_method = MaxAveragePOSValenceMethod()
         review_ratings = max_average_pos_method.process_db_reviews(businessReviews)
-        printBusinessRating(user_weights, review_ratings)
+        pred_business_rating = get_business_rating(user_weights, review_ratings)
+        print '***** Business Rating***** ', pred_business_rating
 
+        business_star_rating_err = abs(business['stars'] - pred_business_rating)
+        print 'Error in Business Rating ', business_star_rating_err
 
 if __name__ == '__main__':
     # Default values 
