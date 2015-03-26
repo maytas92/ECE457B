@@ -198,6 +198,20 @@ class DbReader:
                 'review_count':user.review_count,
                 'average_stars':user.average_stars
                 }
+
+    def getBusinessesByReviewCount(self, num_businesses, review_count ):
+        reviewList = []
+        with db.transaction():
+            query = (Business
+                     .select()
+                     .where(Business.review_count <= review_count )
+                     .limit(num_businesses)
+                     )
+            for q in query:
+                self.parseBusinessData( q, reviewList )
+
+        return reviewList
+        
 # Review Json Reader inherits the
 # functionality of a Json Reader
 # but may add additional methods
@@ -357,7 +371,8 @@ def readDb():
     db_reader = DbReader()
     business_id = '-1bOb2izeJBZjHC7NWxiPA'
 
-    businesses = db_reader.getBusinesses(10)
+    #businesses = db_reader.getBusinesses(10)
+    businesses = db_reader.getBusinessesByReviewCount(10,10)
 
     for business in businesses:
         businessReviews = db_reader.getBusinessReviews(business['business_id'],NUM_RECORDS)
