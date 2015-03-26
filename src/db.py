@@ -184,9 +184,15 @@ class DbReader:
         reviewList = []
         with db.transaction():
             query = (Business
-                     .select()
+                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('review_count'))
+                     .join(Review)
+                     .group_by(Business)
                      .limit(num_businesses)
                      )
+            # query = (Business
+            #          .select()
+            #          .limit(num_businesses)
+            #          )
             for q in query:
                 self.parseBusinessData( q, reviewList )
 
@@ -203,8 +209,10 @@ class DbReader:
         reviewList = []
         with db.transaction():
             query = (Business
-                     .select()
-                     .where(Business.review_count <= review_count )
+                     .select(Business.business_id,Business.business_name,Business.stars, fn.Count(Business.business_id).alias('review_count'))
+                     .join(Review)
+                     .group_by(Business)
+                     .having( fn.Count(Business.business_id) > review_count )
                      .limit(num_businesses)
                      )
             for q in query:
