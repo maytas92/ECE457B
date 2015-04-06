@@ -360,7 +360,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         counter = 0
         # Should return the first num_reviews records
         for i in range(num_reviews):
-            if counter % 100 == 0:
+            if counter % 100 == 0 and counter > 100:
                 print '.',
             counter += 1
             self.review_json.process_record()
@@ -368,7 +368,8 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
         # review_output is a map with the key being a POS Tag
         # and the value an array of words falling into that
         # POS Tag category.
-        print '\nIterating through review json data'
+        if _DEBUG:
+            print '\nIterating through review json data'
         for review_output in self.review_json.pos_tag_review_output:
 
             # Per review iterate through all the pos tags and associated
@@ -407,7 +408,7 @@ class MaxPOSValenceMethod(ReviewClassificationMethod):
             except UnicodeEncodeError:
                 print 'Encoding error - proceeding with next word'
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the max_valence data and get inferencing!
         for review in self.output_pos_max_valence:
             inputs = dict()
@@ -458,7 +459,7 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
         # review_output is a map with the key being a POS Tag
         # and the value an array of words falling into that
         # POS Tag category.
-        print 'Iterating through review json data'
+        #print 'Iterating through review json data'
         for review_output in self.review_json.pos_tag_review_output:
             pos_tag_average_valence = dict()
             for pos_tag, words in review_output.items():
@@ -470,7 +471,7 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             #print pos_tag_average_valence
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the average valence data and get inferencing!
         for review in self._output_pos_average_valences:
             output = self.review_inferencer.infer(**review)
@@ -507,7 +508,7 @@ class AveragePOSValenceMethod(ReviewClassificationMethod):
             # Append the max_valence map data to the output array
             self._output_pos_average_valences.append(pos_tag_average_valence)
 
-        print 'Inferencing'
+        #print 'Inferencing'
         # Iterate through the max_valence data and get inferencing!
         for review in self._output_pos_average_valences:
             output = self.review_inferencer.infer(**review)
