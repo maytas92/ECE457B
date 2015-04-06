@@ -17,7 +17,7 @@ To run the Fuzzy Logic System
       http://stackoverflow.com/questions/8590370/how-to-do-pos-tagging-using-nlp-pos-tagger-in-python
    **
 NOTE: Only run step 3 once Step 2 has run successfully! 
-      If it is desired to create a local database - then go to Step 4.
+      If it is NOT desired to create a local database - then go to Step 4.
 3. Run the main.py script as ./main.py -b <numBusiness> -r <numReviews>
    - Here numBusiness is an option to specify the number of businesses
      for which to run the Fuzzy Logic System. 
